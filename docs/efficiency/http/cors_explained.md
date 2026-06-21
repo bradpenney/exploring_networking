@@ -6,6 +6,9 @@ description: "CORS is the browser rule that confuses every back-end dev. Learn w
 
 # CORS Explained: The Front-End/Back-End Border
 
+!!! tip "Part of a Learning Path"
+    This article is part of the [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+
 Your API works perfectly. You `curl` it — `200 OK`. You hit it in Postman — `200 OK`. Then the front-end developer wires up their web app, and the browser console fills with red:
 
 > Access to fetch at 'https://api.example.com/orders' from origin 'https://app.example.com' has been blocked by CORS policy.
@@ -70,7 +73,7 @@ This is why the fix is **always on the server**, never the front end. The front-
 
 ## Preflight: The Request You Didn't Know You Made
 
-Here's the part that mystifies people: sometimes the browser sends an *extra* request before the real one. For anything beyond a "simple" request — a `PUT`/`DELETE`/`PATCH`, a custom header like `Authorization`, or a JSON content type — the browser first sends an **`OPTIONS` preflight** to ask permission *before* sending the real request.
+Here's the part that mystifies people: sometimes the browser sends an *extra* request before the real one. For anything beyond a "simple" request — a `PUT`/`DELETE`/`PATCH`, a custom header like `Authorization`, or a JSON content type — the browser first sends an **`OPTIONS` preflight** to ask permission *before* sending the real request. Why does JSON count as "non-simple"? A plain HTML form (which predates `fetch`) can only send three content types — `application/x-www-form-urlencoded`, `multipart/form-data`, and `text/plain` — so the browser treats *those* as simple and anything else, including `application/json`, as needing permission first.
 
 ```http title="The preflight the browser sends automatically" linenums="1"
 OPTIONS /orders HTTP/1.1
@@ -88,6 +91,10 @@ Access-Control-Max-Age: 600
 ```
 
 Only if the preflight is approved does the browser send the actual `DELETE`. This is why your server must **handle `OPTIONS`** on CORS-enabled routes — if `OPTIONS` returns a `404` or `405`, the real request never even fires, and the developer sees a baffling error about a request they never wrote. `Access-Control-Max-Age` lets the browser cache the approval so it doesn't preflight every call.
+
+!!! warning "A redirect on the preflight kills the request"
+
+    The browser will **not** follow a `3xx` redirect returned to an `OPTIONS` preflight — it treats it as a CORS failure and stops. This bites surprisingly often when an API redirects `/orders` to `/orders/` (trailing slash): the preflight gets a `301`, the browser blocks it, and the real request never fires. Answer the preflight with a `2xx` directly on CORS-enabled routes — no redirect.
 
 ```mermaid
 sequenceDiagram
@@ -171,12 +178,14 @@ sequenceDiagram
 | **Preflight** | Browser sends `OPTIONS` first for non-simple requests; the server must answer it |
 | **Fix is server-side** | `Access-Control-Allow-*` headers; never reflect arbitrary origins with credentials |
 
+CORS feels like the browser fighting you, but it's the browser protecting your users — refusing to let arbitrary sites spend their credentials behind their backs. Once you see that the Same-Origin Policy is the default, CORS is the *server's* way to relax it on purpose, and `curl`/Postman simply don't play the game, the red console errors stop being a mystery and become a one-line server header. That's the front-end/back-end border, finally drawn in ink.
+
 ## Further Reading
 
 ### Related Networking Articles
 
-- **[From URL to Endpoint](../essentials/from_url_to_endpoint.md)** — what "origin" means at the network level.
-- **[Reverse Proxies and API Gateways](../../api_gateways/efficiency/reverse_proxies_and_gateways.md)** — CORS headers are often applied at the gateway.
+- **[From URL to Endpoint](../../essentials/http/from_url_to_endpoint.md)** — what "origin" means at the network level.
+- **[Reverse Proxies and API Gateways](../api_gateways/reverse_proxies_and_gateways.md)** — CORS headers are often applied at the gateway.
 
 ### Computer Science Fundamentals
 
@@ -185,10 +194,6 @@ sequenceDiagram
 
 ### External Resources
 
-- [MDN: Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) — the definitive reference.
-- [MDN: Same-origin policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) — the rule CORS relaxes.
+- [MDN: Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) — the definitive reference.
+- [MDN: Same-origin policy](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Same-origin_policy) — the rule CORS relaxes.
 - [web.dev: Cross-Origin Resource Sharing](https://web.dev/articles/cross-origin-resource-sharing) — a practical walkthrough.
-
----
-
-CORS feels like the browser fighting you, but it's the browser protecting your users — refusing to let arbitrary sites spend their credentials behind their backs. Once you see that the Same-Origin Policy is the default, CORS is the *server's* way to relax it on purpose, and `curl`/Postman simply don't play the game, the red console errors stop being a mystery and become a one-line server header. That's the front-end/back-end border, finally drawn in ink.

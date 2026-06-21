@@ -133,7 +133,7 @@ TLS isn't just for websites; it's a core security component for internal infrast
 
 ### Related Tools
 - **[cs.bradpenney.io - Public Key Cryptography](https://cs.bradpenney.io)** - The math behind the certificates.
-- **[tls/efficiency/certificate_management.md](../efficiency/certificate_management.md)** - How to automate all of this so it never breaks again.
+- **[tls/efficiency/certificate_management.md](../../efficiency/tls/certificate_management.md)** - How to automate all of this so it never breaks again.
 
 ### Online Testing
 - [Qualys SSL Labs](https://www.ssllabs.com/ssltest/) - The industry standard for testing public TLS configurations.

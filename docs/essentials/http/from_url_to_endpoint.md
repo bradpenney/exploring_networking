@@ -6,6 +6,9 @@ description: "What does 'exposing an endpoint' actually mean? Follow a URL throu
 
 # From URL to Endpoint: How an API Gets Exposed
 
+!!! tip "Part of a Learning Path"
+    This article is part of the [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+
 You've been handed a task: "expose an endpoint so the billing team can hit it." You can `curl` endpoints all day, but the word *expose* is doing a lot of quiet work. Expose it where? To whom? What physically has to be true for `https://api.example.com/orders` to reach your code — and what stops the whole internet from reaching it too?
 
 This is the article that turns "expose an endpoint" from a vague instruction into a concrete chain of things you can point at. We'll follow a single URL from the address bar to the line of code that answers it.
@@ -17,7 +20,7 @@ A URL isn't one thing — it's several routing instructions packed into one stri
 | Part | Value | What it tells the client |
 | :--- | :--- | :--- |
 | **Scheme** | `https` | Use HTTP over TLS (encrypted) — implies port 443 by default |
-| **Host** | `api.example.com` | *Which machine* — resolve this name to an IP |
+| **Host** | `api.example.com` | *Which machine* (the hostname / FQDN) — resolve this name to an IP |
 | **Port** | `443` | *Which door* on that machine to knock on |
 | **Path** | `/orders` | *Which endpoint* on the server to invoke |
 | **Query** | `?status=open` | Parameters for that endpoint |
@@ -93,15 +96,15 @@ Here's the part that's secretly a security decision. When a process starts liste
 - **Bind to `0.0.0.0` (all interfaces)** — accept connections from *anywhere* that can route to the machine. This is "exposed to the network."
 
 ```bash title="See what's listening, and where it's bound" linenums="1"
-ss -tlnp   # (1)!
+sudo ss -tlnp   # (1)!
 # State   Local Address:Port
 # LISTEN  127.0.0.1:8090      <- localhost only (NOT exposed)
 # LISTEN  0.0.0.0:443         <- all interfaces (exposed)
 ```
 
-1. `ss -tlnp` lists listening TCP sockets with the bound address and owning process. The bind address in the second column tells you instantly whether a service is private or exposed.
+1. `ss -tlnp` lists listening TCP sockets with the bound address and owning process. The owning-process column (`-p`) is only populated when you run as root — hence `sudo`; without it that column is blank. The bind address tells you instantly whether a service is private or exposed.
 
-"Expose an endpoint for the billing team" is really a binding-plus-reachability question: should it bind to all interfaces and be reachable on the internet, or bind privately and only be reachable from inside your network? Most internal APIs should *not* be bound to `0.0.0.0` on a public IP — they should sit on a private network or behind a [gateway](../../api_gateways/efficiency/reverse_proxies_and_gateways.md), reachable only by the systems that need them. Getting this wrong is how databases end up exposed to the entire internet.
+"Expose an endpoint for the billing team" is really a binding-plus-reachability question: should it bind to all interfaces and be reachable on the internet, or bind privately and only be reachable from inside your network? Most internal APIs should *not* be bound to `0.0.0.0` on a public IP — they should sit on a private network or behind a [gateway](../../efficiency/api_gateways/reverse_proxies_and_gateways.md), reachable only by the systems that need them. Getting this wrong is how databases end up exposed to the entire internet.
 
 ## Stage 4: The Path Reaches a Handler
 
@@ -120,7 +123,7 @@ Four conditions. When an endpoint is "down," exactly one of them has usually bro
 
 - **It turns "the API is unreachable" into a four-step checklist.** Resolve the name (`dig`), reach the port (`nc`), confirm something's listening (`ss`), then check the application route. You stop guessing and start bisecting.
 - **It's the difference between a private and an exposed service.** The bind address and firewall rules — not the application code — decide whether the billing team or the entire internet can reach your endpoint.
-- **It frames where a gateway fits.** Most production APIs aren't exposed directly; they bind privately and a [reverse proxy or API gateway](../../api_gateways/efficiency/reverse_proxies_and_gateways.md) is the only thing bound to the public port. Understanding direct exposure first makes the gateway's job obvious.
+- **It frames where a gateway fits.** Most production APIs aren't exposed directly; they bind privately and a [reverse proxy or API gateway](../../efficiency/api_gateways/reverse_proxies_and_gateways.md) is the only thing bound to the public port. Understanding direct exposure first makes the gateway's job obvious.
 
 ## Common Scenarios
 
@@ -173,14 +176,16 @@ Four conditions. When an endpoint is "down," exactly one of them has usually bro
 | **Bind address** | `127.0.0.1` = local only; `0.0.0.0` = exposed to the network (`ss -tlnp`) |
 | **Exposed endpoint** | DNS resolves + port reachable + process listening + route handles the path |
 
+"Expose an endpoint" stops being intimidating once you can see the chain it really means: a name that resolves, a port that's reachable, a process that's listening on the right interface, and a route that handles the path. Each link has a command that proves it's working — so the next time someone says an API is unreachable, you won't guess. You'll bisect the chain and find the one link that broke.
+
 ## Further Reading
 
 ### Related Networking Articles
 
 - **DNS Debugging Basics** *(draft — coming soon)* — when stage 1 (name resolution) is the broken link.
 - **Network Troubleshooting Basics** *(draft — coming soon)* — `ping`, `traceroute`, and `curl` for the stages in between.
-- **[HTTPS for APIs: Where the Connection Gets Secured](../../tls/essentials/https_for_apis.md)** — what the TLS handshake (stage 3) actually does.
-- **[Reverse Proxies and API Gateways](../../api_gateways/efficiency/reverse_proxies_and_gateways.md)** — why production endpoints are exposed *through* a front door, not directly.
+- **[HTTPS for APIs: Where the Connection Gets Secured](../tls/https_for_apis.md)** — what the TLS handshake (stage 3) actually does.
+- **[Reverse Proxies and API Gateways](../../efficiency/api_gateways/reverse_proxies_and_gateways.md)** — why production endpoints are exposed *through* a front door, not directly.
 
 ### Computer Science Fundamentals
 
@@ -189,9 +194,5 @@ Four conditions. When an endpoint is "down," exactly one of them has usually bro
 
 ### External Resources
 
-- [MDN: What is a URL?](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL) — every part of a URL, explained.
+- [MDN: What is a URL?](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL) — every part of a URL, explained.
 - [Cloudflare: What is DNS?](https://www.cloudflare.com/learning/dns/what-is-dns/) — the name-resolution step in depth.
-
----
-
-"Expose an endpoint" stops being intimidating once you can see the chain it really means: a name that resolves, a port that's reachable, a process that's listening on the right interface, and a route that handles the path. Each link has a command that proves it's working — so the next time someone says an API is unreachable, you won't guess. You'll bisect the chain and find the one link that broke.

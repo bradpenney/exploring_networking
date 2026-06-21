@@ -68,15 +68,17 @@ plugins:
   - exclude:
       glob:
         # DRAFTS — every pre-existing networking article is a draft (not final).
-        # Only the API series (http/, api_gateways/, tls/essentials/https_for_apis.md)
-        # is published. To publish a draft: remove its line here + uncomment in nav.
-        - "dns/**"
-        - "troubleshooting/**"
-        - "load_balancers/**"
-        - "kubernetes_networking/**"
-        - "cloud_networking/**"
-        - "tls/essentials/tls_basics.md"
-        - "tls/efficiency/**"
+        # Only the API series is published (essentials/http, essentials/tls/https_for_apis,
+        # efficiency/http, efficiency/api_gateways).
+        # To publish a draft: remove its line here + uncomment it in nav.
+        - "essentials/dns/**"
+        - "essentials/troubleshooting/**"
+        - "essentials/load_balancers/**"
+        - "essentials/tls/tls_basics.md"
+        - "efficiency/troubleshooting/**"
+        - "efficiency/tls/**"
+        - "efficiency/kubernetes_networking/**"
+        - "efficiency/cloud_networking/**"
   - rss:
       match_path: ".*"
       image: https://networking.bradpenney.io/images/exploring_networking.png
@@ -130,47 +132,38 @@ markdown_extensions:
   - attr_list
   - md_in_html
 
+# Tier-first nav (Essentials / Efficiency / Mastery), matching the sister sites.
+# Topics are grouped INSIDE each tier. Drafts are commented out and excluded
+# (see exclude plugin above); to publish one, uncomment it AND remove its line
+# from the exclude glob.
 nav:
   - Home: index.md
 
-  # PUBLISHED — the API series (how an endpoint is exposed & secured)
-  - HTTP:
-      - Essentials:
-          - "From URL to Endpoint: How an API Gets Exposed": http/essentials/from_url_to_endpoint.md
-      - Efficiency:
-          - "CORS Explained: The Front-End/Back-End Border": http/efficiency/cors_explained.md
+  - 📦 Essentials:
+      - HTTP:
+          - "From URL to Endpoint: How an API Gets Exposed": essentials/http/from_url_to_endpoint.md
+      - TLS:
+          - "HTTPS for APIs: Where the Connection Gets Secured": essentials/tls/https_for_apis.md
+  #         - TLS Basics: essentials/tls/tls_basics.md
+  #     - DNS:
+  #         - DNS Debugging Basics: essentials/dns/dns_debugging_basics.md
+  #     - Troubleshooting:
+  #         - Network Troubleshooting Basics: essentials/troubleshooting/network_troubleshooting_basics.md
+  #     - Load Balancers:
+  #         - Load Balancer Basics: essentials/load_balancers/load_balancer_basics.md
 
-  - TLS:
-      - Essentials:
-          - "HTTPS for APIs: Where the Connection Gets Secured": tls/essentials/https_for_apis.md
+  - ⚡ Efficiency:
+      - HTTP:
+          - "CORS Explained: The Front-End/Back-End Border": efficiency/http/cors_explained.md
+      - API Gateways:
+          - "Reverse Proxies and API Gateways, Demystified": efficiency/api_gateways/reverse_proxies_and_gateways.md
+  #     - TLS:
+  #         - Certificate Management: efficiency/tls/certificate_management.md
+  #     - Troubleshooting:
+  #         - Advanced Debugging: efficiency/troubleshooting/advanced_debugging.md
+  #     - Kubernetes Networking:
+  #         - Services and Ingress: efficiency/kubernetes_networking/services_and_ingress.md
+  #     - Cloud Networking:
+  #         - VPC Design: efficiency/cloud_networking/vpc_design.md
 
-  - API Gateways:
-      - Efficiency:
-          - "Reverse Proxies and API Gateways, Demystified": api_gateways/efficiency/reverse_proxies_and_gateways.md
-
-  # ---------------------------------------------------------------------------
-  # DRAFTS — not final. Excluded from build (see exclude plugin above).
-  # Uncomment an entry AND remove its line from the exclude glob to publish it.
-  # ---------------------------------------------------------------------------
-  # - DNS:
-  #     - Essentials:
-  #         - DNS Debugging Basics: dns/essentials/dns_debugging_basics.md
-  # - Troubleshooting:
-  #     - Essentials:
-  #         - Network Troubleshooting Basics: troubleshooting/essentials/network_troubleshooting_basics.md
-  #     - Efficiency:
-  #         - Advanced Debugging: troubleshooting/efficiency/advanced_debugging.md
-  # - Load Balancers:
-  #     - Essentials:
-  #         - Load Balancer Basics: load_balancers/essentials/load_balancer_basics.md
-  # - TLS (drafts):
-  #     - Essentials:
-  #         - TLS Basics: tls/essentials/tls_basics.md
-  #     - Efficiency:
-  #         - Certificate Management: tls/efficiency/certificate_management.md
-  # - Kubernetes Networking:
-  #     - Efficiency:
-  #         - Services and Ingress: kubernetes_networking/efficiency/services_and_ingress.md
-  # - Cloud Networking:
-  #     - Efficiency:
-  #         - VPC Design: cloud_networking/efficiency/vpc_design.md
+  # - 🎯 Mastery:  (no articles yet)

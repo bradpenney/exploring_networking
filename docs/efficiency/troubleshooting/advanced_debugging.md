@@ -126,7 +126,7 @@ At scale, generic "network" issues often turn out to be kernel or application-le
 - [lsof(8) Manual Page](https://man7.org/linux/man-pages/man8/lsof.8.html) - Understanding the "everything is a file" philosophy.
 
 ### Related Tools
-- **[troubleshooting/essentials/network_troubleshooting_basics.md](../../troubleshooting/essentials/network_troubleshooting_basics.md)** - Use these for external connectivity tests.
+- **[troubleshooting/essentials/network_troubleshooting_basics.md](../../essentials/troubleshooting/network_troubleshooting_basics.md)** - Use these for external connectivity tests.
 - **[linux.bradpenney.io - Network Commands](https://linux.bradpenney.io)** - More on Linux system administration.
 
 ### Deep Dives

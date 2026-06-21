@@ -128,4 +128,4 @@ Load balancers do more than just distribute traffic; they provide essential plat
 
 ### Related Tools
 - **[Exploring Computer Science](https://cs.bradpenney.io)** - Understand the difference between network (Layer 4) and application (Layer 7) load balancing.
-- **[Network Troubleshooting Basics](../../troubleshooting/essentials/network_troubleshooting_basics.md)** - Use these tools to test your backends directly.
+- **[Network Troubleshooting Basics](../troubleshooting/network_troubleshooting_basics.md)** - Use these tools to test your backends directly.

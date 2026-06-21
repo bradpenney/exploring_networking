@@ -126,7 +126,7 @@ Understanding this stack is essential for:
 
 ### Related Tools
 - **[k8s.bradpenney.io - Services](https://k8s.bradpenney.io)** - Deep dive into Service manifests and types.
-- **[load_balancers/essentials/load_balancer_basics.md](../../load_balancers/essentials/load_balancer_basics.md)** - Understand how external LBs interact with Ingress.
+- **[load_balancers/essentials/load_balancer_basics.md](../../essentials/load_balancers/load_balancer_basics.md)** - Understand how external LBs interact with Ingress.
 
 ### Deep Dives
 - [A Guide to the Kubernetes Networking Model](https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/) - Excellent conceptual overview.

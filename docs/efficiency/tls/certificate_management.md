@@ -137,8 +137,8 @@ Automated certificate management is about more than just avoiding outages:
 - [ACME Protocol (RFC 8555)](https://datatracker.ietf.org/doc/html/rfc8555) - The technical spec.
 
 ### Related Tools
-- **[tls/essentials/tls_basics.md](../essentials/tls_basics.md)** - Refresh your knowledge on why we need certificates in the first place.
-- **[kubernetes_networking/efficiency/services_and_ingress.md](../../kubernetes_networking/efficiency/services_and_ingress.md)** - How to use these certificates with your Ingress resources.
+- **[tls/essentials/tls_basics.md](../../essentials/tls/tls_basics.md)** - Refresh your knowledge on why we need certificates in the first place.
+- **[kubernetes_networking/efficiency/services_and_ingress.md](../kubernetes_networking/services_and_ingress.md)** - How to use these certificates with your Ingress resources.
 
 ### Community Resources
 - [Let's Encrypt Community Forum](https://community.letsencrypt.org/) - Excellent place for troubleshooting obscure ACME errors.

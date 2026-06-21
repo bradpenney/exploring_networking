@@ -6,7 +6,10 @@ description: "Production APIs sit behind a front door. Learn how reverse proxies
 
 # Reverse Proxies and API Gateways, Demystified
 
-You've now [exposed an endpoint](../../http/essentials/from_url_to_endpoint.md) and [secured it with HTTPS](../../tls/essentials/https_for_apis.md). But in production, clients almost never connect to your application directly. There's a piece of infrastructure standing in front of it — the thing that actually owns the public address, terminates TLS, and decides which requests even reach your code. When someone says "the endpoint is behind the gateway," *this* is what they mean, and not understanding it leaves a permanent gap in the picture of how an API is exposed and secured.
+!!! tip "Part of a Learning Path"
+    This article is part of the [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+
+You've now [exposed an endpoint](../../essentials/http/from_url_to_endpoint.md) and [secured it with HTTPS](../../essentials/tls/https_for_apis.md). But in production, clients almost never connect to your application directly. There's a piece of infrastructure standing in front of it — the thing that actually owns the public address, terminates TLS, and decides which requests even reach your code. When someone says "the endpoint is behind the gateway," *this* is what they mean, and not understanding it leaves a permanent gap in the picture of how an API is exposed and secured.
 
 This article demystifies that front door: the reverse proxy and its more capable cousin, the API gateway.
 
@@ -29,7 +32,7 @@ flowchart TD
     style S3 fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
 ```
 
-This flips the exposure model from the [direct-binding picture](../../http/essentials/from_url_to_endpoint.md): your services bind to a *private* address, unreachable from the internet, and only the proxy is bound to the public port. The proxy becomes your single, defensible front door — which is exactly why production systems are built this way.
+This flips the exposure model from the [direct-binding picture](../../essentials/http/from_url_to_endpoint.md): your services bind to a *private* address, unreachable from the internet, and only the proxy is bound to the public port. The proxy becomes your single, defensible front door — which is exactly why production systems are built this way.
 
 !!! tip "Forward proxy vs reverse proxy"
 
@@ -47,7 +50,7 @@ Putting a proxy in front lets you handle cross-cutting concerns *once*, at the e
 
     **Why it matters:** one certificate at the edge instead of one per service.
 
-    The proxy [terminates TLS](../../tls/essentials/https_for_apis.md), so backends don't each manage certs. The most common reason a front door exists.
+    The proxy [terminates TLS](../../essentials/tls/https_for_apis.md), so backends don't each manage certs. The most common reason a front door exists.
 
 -   :material-sign-direction: __Routing__
 
@@ -84,7 +87,7 @@ These terms overlap, and people use them loosely. The useful distinction is *how
 | **Primary job** | Relay and balance traffic | Manage APIs as products |
 | **Operates on** | Connections, hosts, paths | Requests, routes, identities, quotas |
 | **Typical features** | TLS, routing, load balancing, caching | All that **plus** auth, rate limiting, API keys, request/response transformation, usage analytics |
-| **Examples** | NGINX, HAProxy, Envoy | Kong, AWS API Gateway, Apigee, Envoy + control plane |
+| **Examples** | Traefik, HAProxy, Envoy, NGINX | Kong, Traefik Hub, AWS API Gateway, Apigee, Envoy + control plane |
 
 The short version: **an API gateway is a reverse proxy that understands your API**. A plain reverse proxy moves bytes to the right backend. A gateway additionally knows what a "request," a "consumer," and a "rate limit" are, and enforces policy on them. Many tools (Envoy especially) can be either, depending on configuration.
 
@@ -92,32 +95,43 @@ You reach for a gateway specifically when you want to centralize *API-level poli
 
 ## A Minimal Reverse Proxy Config
 
-Concretely, here's NGINX terminating TLS and routing two paths to two private backends:
+Concretely, here's [Traefik](https://traefik.io/) terminating TLS and routing two paths to two private backends. Traefik splits its config in two: a small *static* part defines the entrypoints (ports), and a *dynamic* part defines the routing — this is the dynamic half:
 
-```nginx title="NGINX as a routing, TLS-terminating front door" linenums="1"
-server {
-    listen 443 ssl;                       # (1)!
-    server_name api.example.com;
-    ssl_certificate     /etc/ssl/api.crt; # (2)!
-    ssl_certificate_key /etc/ssl/api.key;
+```yaml title="Traefik (file provider): a routing, TLS-terminating front door" linenums="1"
+http:
+  routers:
+    orders:
+      rule: "Host(`api.example.com`) && PathPrefix(`/orders`)"   # (1)!
+      entryPoints: [websecure]                                   # (2)!
+      service: orders
+      tls: {}                                                    # (3)!
+    users:
+      rule: "Host(`api.example.com`) && PathPrefix(`/users`)"
+      entryPoints: [websecure]
+      service: users
+      tls: {}
 
-    location /orders/ {                    # (3)!
-        proxy_pass http://10.0.1.10:8080; # (4)!
-        proxy_set_header X-Forwarded-Proto https;  # (5)!
-    }
-    location /users/ {
-        proxy_pass http://10.0.1.11:8080;
-    }
-}
+  services:
+    orders:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.1.10:8080"                         # (4)!
+    users:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.1.11:8080"
 ```
 
-1. The proxy — not the app — binds the public port 443 and speaks TLS.
-2. The certificate lives here, at the termination point.
-3. Path-based routing: requests under `/orders/` match this block.
-4. Forwarded to a **private** IP/port the internet can't reach directly.
-5. Tells the backend the original request was HTTPS, preventing the [redirect loop](../../tls/essentials/https_for_apis.md) that bites first-time proxy setups.
+1. Host- and path-based routing: a request for `api.example.com/orders` matches this router.
+2. `websecure` is the port-443 entrypoint, declared once in Traefik's static config — the proxy, not the app, binds the public port and speaks TLS.
+3. `tls: {}` terminates TLS here, at the front door. Traefik can fetch and auto-renew the certificate from an ACME/Let's Encrypt resolver, so the cert lives at the termination point, never in your services.
+4. Forwarded to a **private** IP/port the internet can't reach directly. Traefik sets the `X-Forwarded-*` headers (including `X-Forwarded-Proto`) automatically, so the [redirect loop](../../essentials/tls/https_for_apis.md) that bites hand-rolled proxies never happens here.
 
-A gateway config layers policy on top of this — `auth` plugins, `rate-limiting` plugins, consumer definitions — but the routing skeleton is the same.
+A gateway layers policy on top of this — authentication, rate limiting, request/response transformation — added as **middlewares** chained onto a router, but the routing skeleton is the same.
+
+!!! danger "Trusting forwarded headers"
+
+    The proxy sets `X-Forwarded-For` / `X-Forwarded-Proto` so the backend can see the *original* client. But the gateway must **strip or overwrite** any such header arriving from an untrusted client — if it blindly appends, a caller can forge `X-Forwarded-For` and spoof their source IP, defeating IP allowlists, rate limits, and audit logs. Trust these headers only from proxies you control.
 
 ## Where Authentication and Authorization Land
 
@@ -127,6 +141,11 @@ But a gateway generally **cannot authorize** your business rules, because it doe
 
 - **Authentication** at the gateway (centralized, consistent).
 - **Authorization** in the service (it owns the data and the rules).
+
+One useful refinement: *coarse* authorization can live at the edge too. "Is the caller in an allowed group?" is a membership check a proxy can make; it's *business-rule* authorization ("does user 42 own order 88?") that it can't. A sidecar auth proxy like [forevd](https://github.com/firestoned/forevd) sits exactly here — it externalizes authentication (mTLS or OIDC) *and* coarse authorization (LDAP group or user allowlists) out of your application code, leaving the fine-grained, data-dependent checks to the service. It's one of several tools (alongside full gateways and service meshes) in this space.
+
+!!! info "Disclosure"
+    I contribute to forevd. It's mentioned here as one example of the sidecar auth pattern — not an endorsement.
 
 Assuming the gateway did *both* is a classic way over-permissive APIs ship. The full reasoning lives in the CS-side [authentication vs authorization](https://cs.bradpenney.io/efficiency/web/authentication_vs_authorization/) article; the networking takeaway is simply: **the front door checks identity; the service checks permission.**
 
@@ -187,12 +206,14 @@ Assuming the gateway did *both* is a classic way over-permissive APIs ship. The 
 | **AuthN vs authZ split** | Gateway authenticates (identity); service authorizes (permission) |
 | **5xx attribution** | `502` = backend unreachable/bad response; `504` = backend too slow |
 
+The front door is the part of "how an API is exposed and secured" that's invisible from the client and central to the design. Once you see that backends hide on a private network while a single proxy owns the public address — terminating TLS, routing paths, balancing load, and authenticating callers — the production picture finally closes. The endpoint isn't exposed to the world; the *gateway* is, and it decides what gets through.
+
 ## Further Reading
 
 ### Related Networking Articles
 
-- **[From URL to Endpoint](../../http/essentials/from_url_to_endpoint.md)** — the direct-exposure model the gateway replaces.
-- **[HTTPS for APIs: Where the Connection Gets Secured](../../tls/essentials/https_for_apis.md)** — TLS termination, which the gateway usually performs.
+- **[From URL to Endpoint](../../essentials/http/from_url_to_endpoint.md)** — the direct-exposure model the gateway replaces.
+- **[HTTPS for APIs: Where the Connection Gets Secured](../../essentials/tls/https_for_apis.md)** — TLS termination, which the gateway usually performs.
 - **Load Balancer Basics** *(draft — coming soon)* — health checks and distribution, a core gateway job.
 - **Services and Ingress (Kubernetes Networking)** *(draft — coming soon)* — the gateway pattern as it appears in Kubernetes.
 
@@ -203,10 +224,7 @@ Assuming the gateway did *both* is a classic way over-permissive APIs ship. The 
 
 ### External Resources
 
-- [NGINX: What is a reverse proxy?](https://www.nginx.com/resources/glossary/reverse-proxy-server/) — the canonical explainer.
+- [Traefik Proxy documentation](https://doc.traefik.io/traefik/) — the reverse proxy used in this article's example.
+- [F5/NGINX: What is a reverse proxy?](https://www.f5.com/glossary/reverse-proxy) — the canonical concept explainer.
 - [Cloudflare: API gateway](https://www.cloudflare.com/learning/security/api/what-is-an-api-gateway/) — gateway-specific capabilities.
-- [Kong Gateway documentation](https://docs.konghq.com/gateway/latest/) — a widely-used open-source API gateway.
-
----
-
-The front door is the part of "how an API is exposed and secured" that's invisible from the client and central to the design. Once you see that backends hide on a private network while a single proxy owns the public address — terminating TLS, routing paths, balancing load, and authenticating callers — the production picture finally closes. The endpoint isn't exposed to the world; the *gateway* is, and it decides what gets through.
+- [Kong Gateway documentation](https://developer.konghq.com/gateway/) — a widely-used open-source API gateway.
