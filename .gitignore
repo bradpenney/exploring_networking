@@ -1,0 +1,10 @@
+# MkDocs build output
+site/
+
+# Material social-cards / plugin cache
+.cache/
+
+# Python
+__pycache__/
+*.pyc
+.venv/

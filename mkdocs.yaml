@@ -1,0 +1,176 @@
+site_name: "Exploring Networking"
+site_url: https://networking.bradpenney.io
+site_description: Practical networking for SREs and platform engineers — DNS, load balancers, TLS, VPCs, and Kubernetes networking taught through real production incidents.
+site_author: Brad Penney
+copyright: >-
+  Copyright &copy; Brad Penney —
+  <a href="#__consent">Change cookie settings</a>
+extra:
+  analytics:
+    provider: google
+    property: G-V01MJ4R3SQ
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to measure how effective our content is and whether you
+      find what you're looking for. With your consent, you help make these
+      learning sites better. You can change your choice at any time.
+    cookies:
+      analytics:
+        name: Google Analytics
+        checked: false
+    actions:
+      - accept
+      - reject
+      - manage
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/bradpenney
+    - icon: fontawesome/solid/globe
+      link: https://bradpenney.io
+    - icon: fontawesome/solid/rss
+      link: https://networking.bradpenney.io/feed_rss_created.xml
+extra_css:
+  - stylesheets/extra.css
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: black
+    accent: amber
+  logo: images/exploring_networking.png
+  favicon: images/exploring_networking.png
+  icon:
+    admonition:
+      note: octicons/tag-16
+      abstract: octicons/checklist-16
+      info: octicons/info-16
+      tip: octicons/squirrel-16
+      success: octicons/check-16
+      question: octicons/question-16
+      warning: octicons/alert-16
+      failure: octicons/x-circle-16
+      danger: octicons/zap-16
+      bug: octicons/bug-16
+      example: octicons/beaker-16
+      quote: octicons/quote-16
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - content.code.highlight
+    - content.tooltips
+    - content.code.mermaid
+
+plugins:
+  - search
+  - meta
+  - exclude:
+      glob:
+        # DRAFTS — every pre-existing networking article is a draft (not final).
+        # Only the API series (http/, api_gateways/, tls/essentials/https_for_apis.md)
+        # is published. To publish a draft: remove its line here + uncomment in nav.
+        - "dns/**"
+        - "troubleshooting/**"
+        - "load_balancers/**"
+        - "kubernetes_networking/**"
+        - "cloud_networking/**"
+        - "tls/essentials/tls_basics.md"
+        - "tls/efficiency/**"
+  - rss:
+      match_path: ".*"
+      image: https://networking.bradpenney.io/images/exploring_networking.png
+      abstract_chars_count: 160
+      length: 20
+      date_from_meta:
+        as_creation: "date"
+        as_update: "git"
+        default_timezone: "America/Halifax"
+      categories:
+        - tags
+      use_material_social_cards: false
+  - social:
+      cards: true
+      cards_layout_options:
+        background_color: "#1a202c"
+        color: "#cbd5e0"
+  - htmlproofer:
+      enabled: true
+      validate_rendered_template: true
+      validate_external_urls: false
+      raise_error: true
+      raise_error_after_finish: true
+      raise_error_excludes:
+        404:
+          - "#__consent"
+
+markdown_extensions:
+  - toc:
+      permalink: "🔗"
+      permalink_title: "Link to this section"
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+
+  # PUBLISHED — the API series (how an endpoint is exposed & secured)
+  - HTTP:
+      - Essentials:
+          - "From URL to Endpoint: How an API Gets Exposed": http/essentials/from_url_to_endpoint.md
+      - Efficiency:
+          - "CORS Explained: The Front-End/Back-End Border": http/efficiency/cors_explained.md
+
+  - TLS:
+      - Essentials:
+          - "HTTPS for APIs: Where the Connection Gets Secured": tls/essentials/https_for_apis.md
+
+  - API Gateways:
+      - Efficiency:
+          - "Reverse Proxies and API Gateways, Demystified": api_gateways/efficiency/reverse_proxies_and_gateways.md
+
+  # ---------------------------------------------------------------------------
+  # DRAFTS — not final. Excluded from build (see exclude plugin above).
+  # Uncomment an entry AND remove its line from the exclude glob to publish it.
+  # ---------------------------------------------------------------------------
+  # - DNS:
+  #     - Essentials:
+  #         - DNS Debugging Basics: dns/essentials/dns_debugging_basics.md
+  # - Troubleshooting:
+  #     - Essentials:
+  #         - Network Troubleshooting Basics: troubleshooting/essentials/network_troubleshooting_basics.md
+  #     - Efficiency:
+  #         - Advanced Debugging: troubleshooting/efficiency/advanced_debugging.md
+  # - Load Balancers:
+  #     - Essentials:
+  #         - Load Balancer Basics: load_balancers/essentials/load_balancer_basics.md
+  # - TLS (drafts):
+  #     - Essentials:
+  #         - TLS Basics: tls/essentials/tls_basics.md
+  #     - Efficiency:
+  #         - Certificate Management: tls/efficiency/certificate_management.md
+  # - Kubernetes Networking:
+  #     - Efficiency:
+  #         - Services and Ingress: kubernetes_networking/efficiency/services_and_ingress.md
+  # - Cloud Networking:
+  #     - Efficiency:
+  #         - VPC Design: cloud_networking/efficiency/vpc_design.md
