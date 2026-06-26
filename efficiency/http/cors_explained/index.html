@@ -1,0 +1,1577 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="CORS is the browser rule that confuses every back-end dev. Learn why the browser blocks cross-origin calls and how the server actually grants permission.">
+      
+      
+        <meta name="author" content="Brad Penney">
+      
+      
+        <link rel="canonical" href="https://networking.bradpenney.io/efficiency/http/cors_explained/">
+      
+      
+        <link rel="prev" href="../../../essentials/tls/https_for_apis/">
+      
+      
+        <link rel="next" href="../../api_gateways/reverse_proxies_and_gateways/">
+      
+      
+        
+      
+      
+        <link rel="alternate" type="application/rss+xml" title="RSS feed" href="../../../feed_rss_created.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../../feed_rss_updated.xml">
+      
+      <link rel="icon" href="../../../images/exploring_networking.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CORS Explained: The Front-End/Back-End Border - Exploring Networking</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1%207.775V2.75C1%201.784%201.784%201%202.75%201h5.025c.464%200%20.91.184%201.238.513l6.25%206.25a1.75%201.75%200%200%201%200%202.474l-5.026%205.026a1.75%201.75%200%200%201-2.474%200l-6.25-6.25A1.75%201.75%200%200%201%201%207.775m1.5%200c0%20.066.026.13.073.177l6.25%206.25a.25.25%200%200%200%20.354%200l5.025-5.025a.25.25%200%200%200%200-.354l-6.25-6.25a.25.25%200%200%200-.177-.073H2.75a.25.25%200%200%200-.25.25ZM6%205a1%201%200%201%201%200%202%201%201%200%200%201%200-2%22/%3E%3C/svg%3E');--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.5%201.75v11.5c0%20.138.112.25.25.25h3.17a.75.75%200%200%201%200%201.5H2.75A1.75%201.75%200%200%201%201%2013.25V1.75C1%20.784%201.784%200%202.75%200h8.5C12.216%200%2013%20.784%2013%201.75v7.736a.75.75%200%200%201-1.5%200V1.75a.25.25%200%200%200-.25-.25h-8.5a.25.25%200%200%200-.25.25m13.274%209.537zl-4.557%204.45a.75.75%200%200%201-1.055-.008l-1.943-1.95a.75.75%200%200%201%201.062-1.058l1.419%201.425%204.026-3.932a.75.75%200%201%201%201.048%201.074M4.75%204h4.5a.75.75%200%200%201%200%201.5h-4.5a.75.75%200%200%201%200-1.5M4%207.75A.75.75%200%200%201%204.75%207h2a.75.75%200%200%201%200%201.5h-2A.75.75%200%200%201%204%207.75%22/%3E%3C/svg%3E');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M3.499.75a.75.75%200%200%201%201.5%200v.996C5.9%202.903%206.793%203.65%207.662%204.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873%2010.794-.045%2012.622.26%2014.408.558%2016%201.94%2016%204.25c0%201.278-.954%202.575-2.44%202.734l.146.508.065.22c.203.701.412%201.455.476%202.226.142%201.707-.4%203.03-1.487%203.898C11.714%2014.671%2010.27%2015%208.75%2015h-6a.75.75%200%200%201%200-1.5h1.376a4.5%204.5%200%200%201-.563-1.191%203.84%203.84%200%200%201-.05-2.063%204.65%204.65%200%200%201-2.025-.293.75.75%200%200%201%20.525-1.406c1.357.507%202.376-.006%202.698-.318l.009-.01a.747.747%200%200%201%201.06%200%20.75.75%200%200%201-.012%201.074c-.912.92-.992%201.835-.768%202.586.221.74.745%201.337%201.196%201.621H8.75c1.343%200%202.398-.296%203.074-.836.635-.507%201.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.4%202.4%200%200%201-.507-.441%203.1%203.1%200%200%201-.633-1.248.75.75%200%200%201%201.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738%200%201.25-.615%201.25-1.25%200-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706%201.345-.46.92-.27%201.774.019%203.062l.042.19.01.05c.348.443.666.949.94%201.553a.75.75%200%201%201-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7%205.527c-.814-.68-1.75-1.462-2.692-2.619a3.7%203.7%200%200%200-1.023.88c-.406.495-.663%201.036-.722%201.508.116.122.306.21.591.239.388.038.797-.06%201.032-.19a.75.75%200%200%201%20.728%201.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75%205.677V5.5c0-.984.48-1.94%201.077-2.664.46-.559%201.05-1.055%201.673-1.353z%22/%3E%3C/svg%3E');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M13.78%204.22a.75.75%200%200%201%200%201.06l-7.25%207.25a.75.75%200%200%201-1.06%200L2.22%209.28a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018L6%2010.94l6.72-6.72a.75.75%200%200%201%201.06%200%22/%3E%3C/svg%3E');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.92%206.085h.001a.749.749%200%201%201-1.342-.67c.169-.339.436-.701.849-.977C6.845%204.16%207.369%204%208%204a2.76%202.76%200%200%201%201.637.525c.503.377.863.965.863%201.725%200%20.448-.115.83-.329%201.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6%206%200%200%200-.26.16%201%201%200%200%200-.276.245.75.75%200%200%201-1.248-.832c.184-.264.42-.489.692-.661q.154-.1.313-.195l.007-.004c.1-.061.182-.11.258-.161a1%201%200%200%200%20.277-.245C8.96%206.514%209%206.427%209%206.25a.61.61%200%200%200-.262-.525A1.27%201.27%200%200%200%208%205.5c-.369%200-.595.09-.74.187a1%201%200%200%200-.34.398M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.344%202.343za8%208%200%200%201%2011.314%2011.314A8.002%208.002%200%200%201%20.234%2010.089a8%208%200%200%201%202.11-7.746m1.06%2010.253a6.5%206.5%200%201%200%209.108-9.275%206.5%206.5%200%200%200-9.108%209.275M6.03%204.97%208%206.94l1.97-1.97a.749.749%200%200%201%201.275.326.75.75%200%200%201-.215.734L9.06%208l1.97%201.97a.749.749%200%200%201-.326%201.275.75.75%200%200%201-.734-.215L8%209.06l-1.97%201.97a.749.749%200%200%201-1.275-.326.75.75%200%200%201%20.215-.734L6.94%208%204.97%206.03a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M4.72.22a.75.75%200%200%201%201.06%200l1%20.999a3.5%203.5%200%200%201%202.441%200l.999-1a.748.748%200%200%201%201.265.332.75.75%200%200%201-.205.729l-.775.776c.616.63.995%201.493.995%202.444v.327q0%20.15-.025.292c.408.14.764.392%201.029.722l1.968-.787a.75.75%200%200%201%20.556%201.392L13%207.258V9h2.25a.75.75%200%200%201%200%201.5H13v.5q-.002.615-.141%201.186l2.17.868a.75.75%200%200%201-.557%201.392l-2.184-.873A5%205%200%200%201%208%2016a5%205%200%200%201-4.288-2.427l-2.183.873a.75.75%200%200%201-.558-1.392l2.17-.868A5%205%200%200%201%203%2011v-.5H.75a.75.75%200%200%201%200-1.5H3V7.258L.971%206.446a.75.75%200%200%201%20.558-1.392l1.967.787c.265-.33.62-.583%201.03-.722a1.7%201.7%200%200%201-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72%201.28a.75.75%200%200%201%200-1.06m.53%206.28a.75.75%200%200%200-.75.75V11a3.5%203.5%200%201%200%207%200V7.25a.75.75%200%200%200-.75-.75ZM6.173%205h3.654A.17.17%200%200%200%2010%204.827V4.5a2%202%200%201%200-4%200v.327c0%20.096.077.173.173.173%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"IBM Plex Sans";--md-code-font:"IBM Plex Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-V01MJ4R3SQ"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-V01MJ4R3SQ",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-V01MJ4R3SQ",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>if("undefined"!=typeof __md_analytics){var consent=__md_get("__consent");consent&&consent.analytics&&__md_analytics()}</script>
+  
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="CORS Explained: The Front-End/Back-End Border - Exploring Networking" />
+<meta property="og:description" content="CORS is the browser rule that confuses every back-end dev. Learn why the browser blocks cross-origin calls and how the server actually grants permission." />
+<meta property="og:image" content="https://networking.bradpenney.io/assets/images/social/efficiency/http/cors_explained.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://networking.bradpenney.io/efficiency/http/cors_explained/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="CORS Explained: The Front-End/Back-End Border - Exploring Networking" />
+<meta property="twitter:description" content="CORS is the browser rule that confuses every back-end dev. Learn why the browser blocks cross-origin calls and how the server actually grants permission." />
+<meta property="twitter:image" content="https://networking.bradpenney.io/assets/images/social/efficiency/http/cors_explained.png" />
+</head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cors-explained-the-front-endback-end-border" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Exploring Networking" class="md-header__button md-logo" aria-label="Exploring Networking" data-md-component="logo">
+      
+  <img src="../../../images/exploring_networking.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Exploring Networking
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CORS Explained: The Front-End/Back-End Border
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Exploring Networking" class="md-nav__button md-logo" aria-label="Exploring Networking" data-md-component="logo">
+      
+  <img src="../../../images/exploring_networking.png" alt="logo">
+
+    </a>
+    Exploring Networking
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    📦 Essentials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    📦 Essentials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    HTTP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../essentials/http/from_url_to_endpoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From URL to Endpoint: How an API Gets Exposed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLS
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    TLS
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../essentials/tls/https_for_apis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTPS for APIs: Where the Connection Gets Secured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ⚡ Efficiency
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ⚡ Efficiency
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    HTTP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS Explained: The Front-End/Back-End Border
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS Explained: The Front-End/Back-End Border
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-foundation-the-same-origin-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Foundation: The Same-Origin Policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cors-is-the-permission-system-that-relaxes-sop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CORS Is the Permission System That Relaxes SOP
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-header-that-unblocks-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Header That Unblocks It
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preflight-the-request-you-didnt-know-you-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preflight: The Request You Didn't Know You Made
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-headers-that-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Headers That Matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters-for-platform-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Matters for Platform Work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Scenarios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practice Problems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Further Reading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#related-networking-articles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Networking Articles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computer-science-fundamentals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Computer Science Fundamentals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Gateways
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Gateways
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api_gateways/reverse_proxies_and_gateways/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reverse Proxies and API Gateways, Demystified
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-foundation-the-same-origin-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Foundation: The Same-Origin Policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cors-is-the-permission-system-that-relaxes-sop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CORS Is the Permission System That Relaxes SOP
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-header-that-unblocks-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Header That Unblocks It
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preflight-the-request-you-didnt-know-you-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preflight: The Request You Didn't Know You Made
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-headers-that-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Headers That Matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters-for-platform-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Matters for Platform Work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Scenarios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practice Problems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Further Reading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#related-networking-articles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Networking Articles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computer-science-fundamentals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Computer Science Fundamentals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="cors-explained-the-front-endback-end-border">CORS Explained: The Front-End/Back-End Border<a class="headerlink" href="#cors-explained-the-front-endback-end-border" title="Link to this section">🔗</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">Part of a Learning Path</p>
+<p>This article is part of the <a href="https://bradpenney.io/pathways/how-apis-work">How APIs Actually Work</a> pathway on <a href="https://bradpenney.io">bradpenney.io</a> — a guided sequence through the topic. It also stands on its own.</p>
+</div>
+<p>Your API works perfectly. You <code>curl</code> it — <code>200 OK</code>. You hit it in Postman — <code>200 OK</code>. Then the front-end developer wires up their web app, and the browser console fills with red:</p>
+<blockquote>
+<p>Access to fetch at 'https://api.example.com/orders' from origin 'https://app.example.com' has been blocked by CORS policy.</p>
+</blockquote>
+<p>Nothing about the API changed. <code>curl</code> and Postman still work. Only the <em>browser</em> refuses. This is the single most confusing thing about the front-end/back-end border, and it's confusing because <strong>CORS isn't an API rule — it's a browser rule</strong>, and the two tools you trust most don't enforce it.</p>
+<p>This article makes CORS make sense: what the browser is protecting, why <code>curl</code> is exempt, and exactly which server response unblocks it.</p>
+<h2 id="the-foundation-the-same-origin-policy">The Foundation: The Same-Origin Policy<a class="headerlink" href="#the-foundation-the-same-origin-policy" title="Link to this section">🔗</a></h2>
+<p>Browsers enforce a deep security rule called the <strong>Same-Origin Policy (SOP)</strong>: by default, JavaScript running on one origin may not read responses from a <em>different</em> origin. An <strong>origin</strong> is the triple <strong>scheme + host + port</strong> — all three must match.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">URL of the page</th>
+<th style="text-align: left;">URL it calls</th>
+<th style="text-align: left;">Same origin?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>https://app.example.com</code></td>
+<td style="text-align: left;"><code>https://app.example.com/data</code></td>
+<td style="text-align: left;">✅ Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>https://app.example.com</code></td>
+<td style="text-align: left;"><code>https://api.example.com/data</code></td>
+<td style="text-align: left;">❌ No — different host</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>https://app.example.com</code></td>
+<td style="text-align: left;"><code>http://app.example.com/data</code></td>
+<td style="text-align: left;">❌ No — different scheme</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>https://app.example.com</code></td>
+<td style="text-align: left;"><code>https://app.example.com:8443</code></td>
+<td style="text-align: left;">❌ No — different port</td>
+</tr>
+</tbody>
+</table>
+<p>Why does the browser care? Because it carries your <strong>ambient credentials</strong> — cookies, sessions — and sends them automatically. Without SOP, any malicious site you visited could run JavaScript that calls <code>yourbank.com</code>, ride your logged-in session, and read your balance. SOP is what stops <code>evil.com</code> from quietly using your identity against another site. It's one of the foundations of web security.</p>
+<div class="admonition tip">
+<p class="admonition-title">Why curl and Postman 'work'</p>
+<p><code>curl</code> and Postman are <strong>not browsers</strong>. They have no logged-in user, no ambient cookies to protect, and no Same-Origin Policy. So they happily call any origin — which is exactly why your API "works" everywhere <em>except</em> the browser. CORS problems are invisible to your usual testing tools, and that's the root of the confusion.</p>
+</div>
+<h2 id="cors-is-the-permission-system-that-relaxes-sop">CORS Is the Permission System That Relaxes SOP<a class="headerlink" href="#cors-is-the-permission-system-that-relaxes-sop" title="Link to this section">🔗</a></h2>
+<p>The Same-Origin Policy is a sensible default, but real apps legitimately need cross-origin calls — your front end on <code>app.example.com</code> <em>should</em> be able to call your API on <code>api.example.com</code>. <strong>CORS (Cross-Origin Resource Sharing)</strong> is the controlled mechanism for the <em>server</em> to say "these specific other origins are allowed to read my responses."</p>
+<p>The critical mental shift: <strong>CORS is the server granting permission, enforced by the browser.</strong> The server attaches headers that say who's allowed; the browser reads those headers and decides whether to let the page's JavaScript see the response. If the headers don't grant permission, the browser blocks the <em>response</em> — even though the request may have already reached your server and run.</p>
+<pre class="mermaid"><code>flowchart TD
+    A[JS on app.example.com&lt;br/&gt;calls api.example.com] --&gt; B[Browser sends request&lt;br/&gt;with Origin header]
+    B --&gt; C[Server responds with&lt;br/&gt;Access-Control-Allow-Origin?]
+    C --&gt;|Header allows this origin| D[Browser hands response&lt;br/&gt;to the JavaScript ✅]
+    C --&gt;|Header missing/mismatched| E[Browser BLOCKS the response&lt;br/&gt;CORS error ❌]
+    style A fill:#1a202c,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style D fill:#2f855a,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style E fill:#c53030,stroke:#cbd5e0,stroke-width:2px,color:#fff</code></pre>
+<h2 id="the-header-that-unblocks-it">The Header That Unblocks It<a class="headerlink" href="#the-header-that-unblocks-it" title="Link to this section">🔗</a></h2>
+<p>The browser sends an <code>Origin</code> header announcing where the page came from. The server grants access by echoing back an <code>Access-Control-Allow-Origin</code> header:</p>
+<div class="language-http highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The request the browser sends</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">GET</span> <span class="nn">/orders</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="na">Host</span><span class="o">:</span> <span class="l">api.example.com</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="na">Origin</span><span class="o">:</span> <span class="l">https://app.example.com</span>
+</span></code></pre></div></td></tr></table></div>
+<div class="language-http highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The response that grants permission</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<span class="normal"><a href="#__codelineno-1-2">2</a></span>
+<span class="normal"><a href="#__codelineno-1-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="na">Access-Control-Allow-Origin</span><span class="o">:</span> <span class="l">https://app.example.com</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</span></code></pre></div></td></tr></table></div>
+<p>If <code>Access-Control-Allow-Origin</code> matches the page's origin (or is the wildcard <code>*</code>), the browser releases the response to the JavaScript. If it's absent or doesn't match, the browser throws the CORS error — <em>regardless of the status code</em>. A <code>200 OK</code> with no CORS header still gets blocked.</p>
+<p>This is why the fix is <strong>always on the server</strong>, never the front end. The front-end developer can't make the browser ignore CORS; only the server can send the header that grants permission.</p>
+<h2 id="preflight-the-request-you-didnt-know-you-made">Preflight: The Request You Didn't Know You Made<a class="headerlink" href="#preflight-the-request-you-didnt-know-you-made" title="Link to this section">🔗</a></h2>
+<p>Here's the part that mystifies people: sometimes the browser sends an <em>extra</em> request before the real one. For anything beyond a "simple" request — a <code>PUT</code>/<code>DELETE</code>/<code>PATCH</code>, a custom header like <code>Authorization</code>, or a JSON content type — the browser first sends an <strong><code>OPTIONS</code> preflight</strong> to ask permission <em>before</em> sending the real request. Why does JSON count as "non-simple"? A plain HTML form (which predates <code>fetch</code>) can only send three content types — <code>application/x-www-form-urlencoded</code>, <code>multipart/form-data</code>, and <code>text/plain</code> — so the browser treats <em>those</em> as simple and anything else, including <code>application/json</code>, as needing permission first.</p>
+<div class="language-http highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The preflight the browser sends automatically</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nf">OPTIONS</span> <span class="nn">/orders</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="na">Origin</span><span class="o">:</span> <span class="l">https://app.example.com</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="na">Access-Control-Request-Method</span><span class="o">:</span> <span class="l">DELETE</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="na">Access-Control-Request-Headers</span><span class="o">:</span> <span class="l">authorization</span>
+</span></code></pre></div></td></tr></table></div>
+<div class="language-http highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The server&#x27;s preflight approval</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span>
+<span class="normal"><a href="#__codelineno-3-4">4</a></span>
+<span class="normal"><a href="#__codelineno-3-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">204</span> <span class="ne">No Content</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="na">Access-Control-Allow-Origin</span><span class="o">:</span> <span class="l">https://app.example.com</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="na">Access-Control-Allow-Methods</span><span class="o">:</span> <span class="l">GET, POST, DELETE</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="na">Access-Control-Allow-Headers</span><span class="o">:</span> <span class="l">authorization</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="na">Access-Control-Max-Age</span><span class="o">:</span> <span class="l">600</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Only if the preflight is approved does the browser send the actual <code>DELETE</code>. This is why your server must <strong>handle <code>OPTIONS</code></strong> on CORS-enabled routes — if <code>OPTIONS</code> returns a <code>404</code> or <code>405</code>, the real request never even fires, and the developer sees a baffling error about a request they never wrote. <code>Access-Control-Max-Age</code> lets the browser cache the approval so it doesn't preflight every call.</p>
+<div class="admonition warning">
+<p class="admonition-title">A redirect on the preflight kills the request</p>
+<p>The browser will <strong>not</strong> follow a <code>3xx</code> redirect returned to an <code>OPTIONS</code> preflight — it treats it as a CORS failure and stops. This bites surprisingly often when an API redirects <code>/orders</code> to <code>/orders/</code> (trailing slash): the preflight gets a <code>301</code>, the browser blocks it, and the real request never fires. Answer the preflight with a <code>2xx</code> directly on CORS-enabled routes — no redirect.</p>
+</div>
+<pre class="mermaid"><code>sequenceDiagram
+    participant B as Browser
+    participant S as Server
+    B-&gt;&gt;S: OPTIONS /orders (preflight: may I DELETE with auth?)
+    S-&gt;&gt;B: 204 + Allow-Methods/Headers (yes)
+    B-&gt;&gt;S: DELETE /orders/88 (the real request)
+    S-&gt;&gt;B: 200 + Allow-Origin</code></pre>
+<h2 id="the-headers-that-matter">The Headers That Matter<a class="headerlink" href="#the-headers-that-matter" title="Link to this section">🔗</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Header</th>
+<th style="text-align: left;">Sent by</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Origin</code></td>
+<td style="text-align: left;">browser</td>
+<td style="text-align: left;">Announces the calling page's origin</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Access-Control-Allow-Origin</code></td>
+<td style="text-align: left;">server</td>
+<td style="text-align: left;">Which origin(s) may read the response</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Access-Control-Allow-Methods</code></td>
+<td style="text-align: left;">server</td>
+<td style="text-align: left;">Which methods are permitted (preflight)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Access-Control-Allow-Headers</code></td>
+<td style="text-align: left;">server</td>
+<td style="text-align: left;">Which request headers are permitted (preflight)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Access-Control-Allow-Credentials</code></td>
+<td style="text-align: left;">server</td>
+<td style="text-align: left;">Whether cookies/credentials may be sent</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Access-Control-Max-Age</code></td>
+<td style="text-align: left;">server</td>
+<td style="text-align: left;">How long the browser may cache the preflight approval</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">The wildcard trap with credentials</p>
+<p><code>Access-Control-Allow-Origin: *</code> allows any origin — convenient, but it <strong>cannot</strong> be combined with <code>Access-Control-Allow-Credentials: true</code>. The browser forbids sending cookies to a wildcard origin (it would let <em>any</em> site use a user's credentials — the exact attack SOP prevents). For credentialed requests you must echo back the <em>specific</em> requesting origin, not <code>*</code>. This pairing catches almost everyone the first time.</p>
+</div>
+<h2 id="why-this-matters-for-platform-work">Why This Matters for Platform Work<a class="headerlink" href="#why-this-matters-for-platform-work" title="Link to this section">🔗</a></h2>
+<ul>
+<li><strong>CORS errors are a server configuration task disguised as a front-end bug.</strong> The browser console blames the front end, but the resolution is always a server response header. Knowing this stops the cross-team finger-pointing: the front-end dev is <em>reporting</em> the problem, not causing it.</li>
+<li><strong>It explains the "works in Postman, fails in the browser" report you'll get constantly.</strong> Your testing tools don't enforce SOP. The first time someone says "your API is broken but only in the app," CORS is the prime suspect.</li>
+<li><strong>Misconfiguring it is a real security hole.</strong> Reflecting <em>any</em> origin back (echoing whatever <code>Origin</code> arrives) or pairing <code>*</code> with credentials can re-open the cross-site door SOP exists to close. CORS should <em>widen</em> access deliberately to known origins, not blanket-allow.</li>
+</ul>
+<h2 id="common-scenarios">Common Scenarios<a class="headerlink" href="#common-scenarios" title="Link to this section">🔗</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 22a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm-1-3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57l-2.29-3.96L14 17l-5.07-5.07-3.75 6.5c-.11.16-.18.36-.18.57m8-9a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1"/></svg></span> 'Works in Postman, not the browser'</label><label for="__tabbed_1_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11 18h2v-2h-2zm1-12a4 4 0 0 0-4 4h2a2 2 0 0 1 2-2 2 2 0 0 1 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5a4 4 0 0 0-4-4M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2"/></svg></span> A mysterious OPTIONS 404</label><label for="__tabbed_1_3"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 10h-2V9c0-1-1-1-1-1h-2V7c0-1-1-1-1-1h-1V4c0-1-1-1-1-1-5 0-9 4-9 9s4 9 9 9 9-4 9-9c0-.5 0-1-.1-1.5-.3-.5-.9-.5-.9-.5M4.5 13c-.8 0-1.5-.7-1.5-1.5S3.7 10 4.5 10s1.5.7 1.5 1.5S5.3 13 4.5 13M6 7.5C6 6.7 6.7 6 7.5 6S9 6.7 9 7.5 8.3 9 7.5 9 6 8.3 6 7.5M9 19c-.8 0-1.5-.7-1.5-1.5S8.2 16 9 16s1.5.7 1.5 1.5S9.8 19 9 19m.5-5c-.8 0-1.5-.7-1.5-1.5S8.7 11 9.5 11s1.5.7 1.5 1.5-.7 1.5-1.5 1.5m5 2c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5 1.5.7 1.5 1.5-.7 1.5-1.5 1.5m6.5-1h2v2h-2zm2-8v6h-2V7z"/></svg></span> Cookies not being sent cross-origin</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>The request succeeds in Postman/<code>curl</code> but the browser shows a CORS error. The API is missing <code>Access-Control-Allow-Origin</code> for the front end's origin. Postman doesn't enforce SOP, so it never noticed. Fix: configure the server to return the allow-origin header for the front-end's origin. This is the single most common CORS report.</p>
+</div>
+<div class="tabbed-block">
+<p>Logs show an <code>OPTIONS /orders</code> returning <code>404</code> or <code>405</code>, and the real request never arrives. The route doesn't handle <strong>preflight</strong>. The browser asked permission, got rejected, and refused to send the actual request. Fix: ensure the framework/gateway answers <code>OPTIONS</code> with the appropriate <code>Access-Control-Allow-*</code> headers (most CORS middleware does this automatically once enabled).</p>
+</div>
+<div class="tabbed-block">
+<p>Auth works same-origin but the session cookie isn't sent cross-origin. Two things must align: the client must opt in (<code>fetch(..., { credentials: 'include' })</code>) <strong>and</strong> the server must send <code>Access-Control-Allow-Credentials: true</code> with a <em>specific</em> (non-wildcard) <code>Access-Control-Allow-Origin</code>. Miss either and the browser drops the credentials.</p>
+</div>
+</div>
+</div>
+<h2 id="practice-problems">Practice Problems<a class="headerlink" href="#practice-problems" title="Link to this section">🔗</a></h2>
+<details class="question">
+<summary>Practice Problem 1: Whose Bug Is It?</summary>
+<p>A front-end developer says, "Your API is broken — I get a CORS error." You test the exact same endpoint with <code>curl</code> and get a clean <code>200 OK</code>. Is the API broken? Who fixes this and how?</p>
+<details class="tip">
+<summary>Solution</summary>
+<p>The API isn't "broken" in the sense the developer means — it returns correct data, which is why <code>curl</code> succeeds. But it's <strong>misconfigured for browser clients</strong>: it isn't sending <code>Access-Control-Allow-Origin</code> for the front-end's origin, so the <strong>browser</strong> (not the API) blocks the response. <code>curl</code> has no Same-Origin Policy, so it never sees a problem. The fix is on the <strong>server</strong>: configure it to return the allow-origin header for the front-end's origin (and handle <code>OPTIONS</code> preflight). The front-end developer can't fix it from their side — only the server can grant permission.</p>
+</details>
+</details>
+<details class="question">
+<summary>Practice Problem 2: The Phantom OPTIONS Request</summary>
+<p>Your API logs show occasional <code>OPTIONS</code> requests to endpoints your front end calls with <code>DELETE</code> — but your code never sends <code>OPTIONS</code>. Where are they coming from, and what happens if you return <code>404</code> to them?</p>
+<details class="tip">
+<summary>Solution</summary>
+<p>The <strong>browser</strong> sends them automatically as <strong>CORS preflight</strong> requests. Because <code>DELETE</code> (and custom headers like <code>Authorization</code>) aren't "simple," the browser asks permission with an <code>OPTIONS</code> request <em>before</em> sending the real <code>DELETE</code>. If you return <code>404</code>/<code>405</code> to the preflight, the browser concludes the cross-origin call isn't allowed and <strong>never sends the actual <code>DELETE</code></strong> — the developer sees a CORS failure for a request that never left the browser. You must answer <code>OPTIONS</code> with the appropriate <code>Access-Control-Allow-Methods</code>/<code>Allow-Headers</code>.</p>
+</details>
+</details>
+<details class="question">
+<summary>Practice Problem 3: The Insecure Fix</summary>
+<p>Under deadline pressure, an engineer makes all CORS errors disappear by configuring the server to read the incoming <code>Origin</code> header and echo it straight back into <code>Access-Control-Allow-Origin</code>, plus <code>Access-Control-Allow-Credentials: true</code>. Why is this dangerous?</p>
+<details class="tip">
+<summary>Solution</summary>
+<p>Echoing back <em>whatever</em> origin arrives means the server allows <strong>every</strong> origin — including <code>https://evil.com</code> — and combining that with <code>Allow-Credentials: true</code> tells the browser it's fine to send the user's <strong>cookies</strong> to those cross-origin requests. That re-creates exactly the attack the Same-Origin Policy prevents: a malicious site can now make credentialed calls to your API using a logged-in victim's session and read the responses. CORS should allow a <strong>known list</strong> of trusted origins, never reflect arbitrary ones with credentials enabled.</p>
+</details>
+</details>
+<h2 id="key-takeaways">Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this section">🔗</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Concept</th>
+<th style="text-align: left;">What It Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Same-Origin Policy</strong></td>
+<td style="text-align: left;">Browsers block cross-origin reads by default to protect ambient credentials</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Origin</strong></td>
+<td style="text-align: left;">scheme + host + port — all three must match to be "same origin"</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CORS</strong></td>
+<td style="text-align: left;">The <em>server</em> grants cross-origin permission; the <em>browser</em> enforces it</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>curl/Postman exempt</strong></td>
+<td style="text-align: left;">No SOP → no CORS → "works everywhere but the browser"</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Preflight</strong></td>
+<td style="text-align: left;">Browser sends <code>OPTIONS</code> first for non-simple requests; the server must answer it</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Fix is server-side</strong></td>
+<td style="text-align: left;"><code>Access-Control-Allow-*</code> headers; never reflect arbitrary origins with credentials</td>
+</tr>
+</tbody>
+</table>
+<p>CORS feels like the browser fighting you, but it's the browser protecting your users — refusing to let arbitrary sites spend their credentials behind their backs. Once you see that the Same-Origin Policy is the default, CORS is the <em>server's</em> way to relax it on purpose, and <code>curl</code>/Postman simply don't play the game, the red console errors stop being a mystery and become a one-line server header. That's the front-end/back-end border, finally drawn in ink.</p>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Link to this section">🔗</a></h2>
+<h3 id="related-networking-articles">Related Networking Articles<a class="headerlink" href="#related-networking-articles" title="Link to this section">🔗</a></h3>
+<ul>
+<li><strong><a href="../../../essentials/http/from_url_to_endpoint/">From URL to Endpoint</a></strong> — what "origin" means at the network level.</li>
+<li><strong><a href="../../api_gateways/reverse_proxies_and_gateways/">Reverse Proxies and API Gateways</a></strong> — CORS headers are often applied at the gateway.</li>
+</ul>
+<h3 id="computer-science-fundamentals">Computer Science Fundamentals<a class="headerlink" href="#computer-science-fundamentals" title="Link to this section">🔗</a></h3>
+<ul>
+<li><strong><a href="https://cs.bradpenney.io/efficiency/web/anatomy_of_request_response/">Anatomy of an HTTP Request and Response (cs.bradpenney.io)</a></strong> — the headers and methods CORS relies on.</li>
+<li><strong><a href="https://cs.bradpenney.io/efficiency/web/client_server_request_response/">Client and Server: The Request/Response Lifecycle (cs.bradpenney.io)</a></strong> — why the front end is an untrusted client.</li>
+</ul>
+<h3 id="external-resources">External Resources<a class="headerlink" href="#external-resources" title="Link to this section">🔗</a></h3>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS">MDN: Cross-Origin Resource Sharing (CORS)</a> — the definitive reference.</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Same-origin_policy">MDN: Same-origin policy</a> — the rule CORS relaxes.</li>
+<li><a href="https://web.dev/articles/cross-origin-resource-sharing">web.dev: Cross-Origin Resource Sharing</a> — a practical walkthrough.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; Brad Penney — <a href="#__consent">Change cookie settings</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/bradpenney" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://bradpenney.io" target="_blank" rel="noopener" title="bradpenney.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M351.9 280H161c2.9 64.5 17.2 123.9 37.5 167.4 11.4 24.5 23.7 41.8 35.1 52.4 11.2 10.5 18.9 12.2 22.9 12.2s11.7-1.7 22.9-12.2c11.4-10.6 23.7-28 35.1-52.4 20.3-43.5 34.6-102.9 37.5-167.4zm-191-48h190.9c-2.8-64.5-17.1-123.9-37.4-167.4-11.4-24.4-23.7-41.8-35.1-52.4C268.1 1.7 260.4 0 256.4 0s-11.7 1.7-22.9 12.2c-11.4 10.6-23.7 28-35.1 52.4-20.3 43.5-34.6 102.9-37.5 167.4m-48 0c3.5-85.6 25.6-165.1 57.9-217.3C78.7 47.3 10.9 131.2 1.5 232zM1.5 280c9.4 100.8 77.2 184.7 169.3 217.3-32.3-52.2-54.4-131.7-57.9-217.3zm398.4 0c-3.5 85.6-25.6 165.1-57.9 217.3 92.1-32.7 159.9-116.5 169.3-217.3zm111.4-48C501.9 131.2 434.1 47.3 342 14.7c32.3 52.2 54.4 131.7 57.9 217.3z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://networking.bradpenney.io/feed_rss_created.xml" target="_blank" rel="noopener" title="networking.bradpenney.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M0 64c0-17.7 14.3-32 32-32 229.8 0 416 186.2 416 416 0 17.7-14.3 32-32 32s-32-14.3-32-32C384 253.6 226.4 96 32 96 14.3 96 0 81.7 0 64m0 352a64 64 0 1 1 128 0 64 64 0 1 1-128 0m32-256c159.1 0 288 128.9 288 288 0 17.7-14.3 32-32 32s-32-14.3-32-32c0-123.7-100.3-224-224-224-17.7 0-32-14.3-32-32s14.3-32 32-32"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+
+
+<h4>Cookie consent</h4>
+<p>We use cookies to measure how effective our content is and whether you find what you're looking for. With your consent, you help make these learning sites better. You can change your choice at any time.</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+    
+    
+      
+    
+    
+      
+        
+  
+  
+    
+    
+  
+  <li class="task-list-item">
+    <label class="task-list-control">
+      <input type="checkbox" name="analytics" >
+      <span class="task-list-indicator"></span>
+      Google Analytics
+    </label>
+  </li>
+
+      
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Reject</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Manage settings</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "content.code.highlight", "content.tooltips", "content.code.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

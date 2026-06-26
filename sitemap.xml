@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://networking.bradpenney.io/</loc>
+         <lastmod>2026-06-26</lastmod>
+    </url>
+    <url>
+         <loc>https://networking.bradpenney.io/efficiency/api_gateways/reverse_proxies_and_gateways/</loc>
+         <lastmod>2026-06-26</lastmod>
+    </url>
+    <url>
+         <loc>https://networking.bradpenney.io/efficiency/http/cors_explained/</loc>
+         <lastmod>2026-06-26</lastmod>
+    </url>
+    <url>
+         <loc>https://networking.bradpenney.io/essentials/http/from_url_to_endpoint/</loc>
+         <lastmod>2026-06-26</lastmod>
+    </url>
+    <url>
+         <loc>https://networking.bradpenney.io/essentials/tls/https_for_apis/</loc>
+         <lastmod>2026-06-26</lastmod>
+    </url>
+</urlset>
