@@ -120,10 +120,11 @@ This is the planned content aligned with the Essentials → Efficiency → Maste
 
 **TLS/SSL Certificates:**
 - Certificate basics (public/private keys, CA, chains)
-- Let's Encrypt and ACME protocol
-- cert-manager in Kubernetes
+- Let's Encrypt and ACME protocol (protocol-level: challenges, rate limits, automation tiers)
 - Certificate renewal automation
-- Common TLS errors (expired, self-signed, hostname mismatch)
+- Common TLS errors (expired, hostname mismatch; self-signed = anti-pattern)
+- NOTE (2026-07-08 boundary rule): cert-manager's Kubernetes machinery lives on the k8s site
+  (`efficiency/networking/cert_manager.md`) — this site stays platform-agnostic and cross-links it.
 
 **VPC Design:**
 - CIDR block planning and subnet allocation
@@ -692,8 +693,8 @@ Structure should be:
 7. **Troubleshooting** - Common issues and solutions
 8. **Practice Exercises** - Hands-on reinforcement
 9. **Key Takeaways** - Table summarizing essential concepts
-10. **Further Reading** - Organized by category
-11. **What's Next** - Progression to related tools
+10. **What's Next** - Progression to related tools
+11. **Further Reading** - Organized by category
 
 **Workflow Articles (Git workflows, tmux sessions, shell productivity):**
 

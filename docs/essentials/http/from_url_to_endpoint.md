@@ -7,7 +7,7 @@ description: "What does 'exposing an endpoint' actually mean? Follow a URL throu
 # From URL to Endpoint: How an API Gets Exposed
 
 !!! tip "Part of a Learning Path"
-    This article is part of the [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+    This article is part of two learning paths on [bradpenney.io](https://bradpenney.io): [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) and [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet). It also stands on its own.
 
 You've been handed a task: "expose an endpoint so the billing team can hit it." You can `curl` endpoints all day, but the word *expose* is doing a lot of quiet work. Expose it where? To whom? What physically has to be true for `https://api.example.com/orders` to reach your code — and what stops the whole internet from reaching it too?
 
@@ -182,8 +182,7 @@ Four conditions. When an endpoint is "down," exactly one of them has usually bro
 
 ### Related Networking Articles
 
-- **DNS Debugging Basics** *(draft — coming soon)* — when stage 1 (name resolution) is the broken link.
-- **Network Troubleshooting Basics** *(draft — coming soon)* — `ping`, `traceroute`, and `curl` for the stages in between.
+- **[How DNS Actually Works](../dns/how_dns_works.md)** — what's really inside stage 1: the resolution chain, records, and TTLs.
 - **[HTTPS for APIs: Where the Connection Gets Secured](../tls/https_for_apis.md)** — what the TLS handshake (stage 3) actually does.
 - **[Reverse Proxies and API Gateways](../../efficiency/api_gateways/reverse_proxies_and_gateways.md)** — why production endpoints are exposed *through* a front door, not directly.
 

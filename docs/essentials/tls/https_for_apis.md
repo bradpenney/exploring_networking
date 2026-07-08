@@ -231,8 +231,8 @@ curl -sI http://api.example.com/ | grep -i location   # (3)!
 
 ### Related Networking Articles
 
-- **TLS Basics** *(draft — coming soon)* — the handshake and the chain of trust this builds on.
-- **Certificate Management** *(draft — coming soon)* — automating renewal so termination points never expire.
+- **[TLS Basics: Certificates, Handshakes, and the Chain of Trust](tls_basics.md)** — the handshake and the chain of trust this builds on.
+- **[Automating TLS Certificates: ACME and cert-manager](../../efficiency/tls/certificate_management.md)** — automating renewal so termination points never expire.
 - **[From URL to Endpoint](../http/from_url_to_endpoint.md)** — how the connection reaches the server in the first place.
 - **[Reverse Proxies and API Gateways](../../efficiency/api_gateways/reverse_proxies_and_gateways.md)** — the component that usually terminates TLS.
 

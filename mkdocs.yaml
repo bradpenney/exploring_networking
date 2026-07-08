@@ -34,6 +34,7 @@ extra_css:
   - stylesheets/extra.css
 theme:
   name: material
+  custom_dir: overrides
   font:
     text: IBM Plex Sans
     code: IBM Plex Mono
@@ -74,12 +75,9 @@ plugins:
         # Only the API series is published (essentials/http, essentials/tls/https_for_apis,
         # efficiency/http, efficiency/api_gateways).
         # To publish a draft: remove its line here + uncomment it in nav.
-        - "essentials/dns/**"
+        - "essentials/dns/dns_debugging_basics.md"
         - "essentials/troubleshooting/**"
-        - "essentials/load_balancers/**"
-        - "essentials/tls/tls_basics.md"
         - "efficiency/troubleshooting/**"
-        - "efficiency/tls/**"
         - "efficiency/kubernetes_networking/**"
         - "efficiency/cloud_networking/**"
   - rss:
@@ -146,22 +144,23 @@ nav:
       - HTTP:
           - "From URL to Endpoint: How an API Gets Exposed": essentials/http/from_url_to_endpoint.md
       - TLS:
+          - "TLS Basics: Certificates, Handshakes, and the Chain of Trust": essentials/tls/tls_basics.md
           - "HTTPS for APIs: Where the Connection Gets Secured": essentials/tls/https_for_apis.md
-  #         - TLS Basics: essentials/tls/tls_basics.md
-  #     - DNS:
+      - DNS:
+          - "How DNS Actually Works: Resolution, Records, and TTLs": essentials/dns/how_dns_works.md
   #         - DNS Debugging Basics: essentials/dns/dns_debugging_basics.md
+      - Load Balancers:
+          - "Load Balancer Basics: One Address, Many Healthy Servers": essentials/load_balancers/load_balancer_basics.md
   #     - Troubleshooting:
   #         - Network Troubleshooting Basics: essentials/troubleshooting/network_troubleshooting_basics.md
-  #     - Load Balancers:
-  #         - Load Balancer Basics: essentials/load_balancers/load_balancer_basics.md
 
   - ⚡ Efficiency:
       - HTTP:
           - "CORS Explained: The Front-End/Back-End Border": efficiency/http/cors_explained.md
       - API Gateways:
           - "Reverse Proxies and API Gateways, Demystified": efficiency/api_gateways/reverse_proxies_and_gateways.md
-  #     - TLS:
-  #         - Certificate Management: efficiency/tls/certificate_management.md
+      - TLS:
+          - "Automating TLS Certificates: ACME and Let's Encrypt": efficiency/tls/certificate_management.md
   #     - Troubleshooting:
   #         - Advanced Debugging: efficiency/troubleshooting/advanced_debugging.md
   #     - Kubernetes Networking:

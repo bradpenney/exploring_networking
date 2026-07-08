@@ -214,8 +214,7 @@ The front door is the part of "how an API is exposed and secured" that's invisib
 
 - **[From URL to Endpoint](../../essentials/http/from_url_to_endpoint.md)** — the direct-exposure model the gateway replaces.
 - **[HTTPS for APIs: Where the Connection Gets Secured](../../essentials/tls/https_for_apis.md)** — TLS termination, which the gateway usually performs.
-- **Load Balancer Basics** *(draft — coming soon)* — health checks and distribution, a core gateway job.
-- **Services and Ingress (Kubernetes Networking)** *(draft — coming soon)* — the gateway pattern as it appears in Kubernetes.
+- **[Load Balancer Basics](../../essentials/load_balancers/load_balancer_basics.md)** — health checks and distribution, a core gateway job.
 
 ### Computer Science Fundamentals
 
