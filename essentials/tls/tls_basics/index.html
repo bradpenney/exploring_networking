@@ -1,0 +1,1838 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Every scary TLS error is one verification step failing. Learn the handshake, what a certificate asserts, and how the chain of trust actually gets verified.">
+      
+      
+        <meta name="author" content="Brad Penney">
+      
+      
+        <link rel="canonical" href="https://networking.bradpenney.io/essentials/tls/tls_basics/">
+      
+      
+        <link rel="prev" href="../../http/from_url_to_endpoint/">
+      
+      
+        <link rel="next" href="../https_for_apis/">
+      
+      
+        
+      
+      
+        <link rel="alternate" type="application/rss+xml" title="RSS feed" href="../../../feed_rss_created.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../../feed_rss_updated.xml">
+      
+      <link rel="icon" href="../../../images/exploring_networking.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>TLS Basics: Certificates, Handshakes, and the Chain of Trust - Exploring Networking</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1%207.775V2.75C1%201.784%201.784%201%202.75%201h5.025c.464%200%20.91.184%201.238.513l6.25%206.25a1.75%201.75%200%200%201%200%202.474l-5.026%205.026a1.75%201.75%200%200%201-2.474%200l-6.25-6.25A1.75%201.75%200%200%201%201%207.775m1.5%200c0%20.066.026.13.073.177l6.25%206.25a.25.25%200%200%200%20.354%200l5.025-5.025a.25.25%200%200%200%200-.354l-6.25-6.25a.25.25%200%200%200-.177-.073H2.75a.25.25%200%200%200-.25.25ZM6%205a1%201%200%201%201%200%202%201%201%200%200%201%200-2%22/%3E%3C/svg%3E');--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.5%201.75v11.5c0%20.138.112.25.25.25h3.17a.75.75%200%200%201%200%201.5H2.75A1.75%201.75%200%200%201%201%2013.25V1.75C1%20.784%201.784%200%202.75%200h8.5C12.216%200%2013%20.784%2013%201.75v7.736a.75.75%200%200%201-1.5%200V1.75a.25.25%200%200%200-.25-.25h-8.5a.25.25%200%200%200-.25.25m13.274%209.537zl-4.557%204.45a.75.75%200%200%201-1.055-.008l-1.943-1.95a.75.75%200%200%201%201.062-1.058l1.419%201.425%204.026-3.932a.75.75%200%201%201%201.048%201.074M4.75%204h4.5a.75.75%200%200%201%200%201.5h-4.5a.75.75%200%200%201%200-1.5M4%207.75A.75.75%200%200%201%204.75%207h2a.75.75%200%200%201%200%201.5h-2A.75.75%200%200%201%204%207.75%22/%3E%3C/svg%3E');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M3.499.75a.75.75%200%200%201%201.5%200v.996C5.9%202.903%206.793%203.65%207.662%204.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873%2010.794-.045%2012.622.26%2014.408.558%2016%201.94%2016%204.25c0%201.278-.954%202.575-2.44%202.734l.146.508.065.22c.203.701.412%201.455.476%202.226.142%201.707-.4%203.03-1.487%203.898C11.714%2014.671%2010.27%2015%208.75%2015h-6a.75.75%200%200%201%200-1.5h1.376a4.5%204.5%200%200%201-.563-1.191%203.84%203.84%200%200%201-.05-2.063%204.65%204.65%200%200%201-2.025-.293.75.75%200%200%201%20.525-1.406c1.357.507%202.376-.006%202.698-.318l.009-.01a.747.747%200%200%201%201.06%200%20.75.75%200%200%201-.012%201.074c-.912.92-.992%201.835-.768%202.586.221.74.745%201.337%201.196%201.621H8.75c1.343%200%202.398-.296%203.074-.836.635-.507%201.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.4%202.4%200%200%201-.507-.441%203.1%203.1%200%200%201-.633-1.248.75.75%200%200%201%201.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738%200%201.25-.615%201.25-1.25%200-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706%201.345-.46.92-.27%201.774.019%203.062l.042.19.01.05c.348.443.666.949.94%201.553a.75.75%200%201%201-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7%205.527c-.814-.68-1.75-1.462-2.692-2.619a3.7%203.7%200%200%200-1.023.88c-.406.495-.663%201.036-.722%201.508.116.122.306.21.591.239.388.038.797-.06%201.032-.19a.75.75%200%200%201%20.728%201.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75%205.677V5.5c0-.984.48-1.94%201.077-2.664.46-.559%201.05-1.055%201.673-1.353z%22/%3E%3C/svg%3E');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M13.78%204.22a.75.75%200%200%201%200%201.06l-7.25%207.25a.75.75%200%200%201-1.06%200L2.22%209.28a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018L6%2010.94l6.72-6.72a.75.75%200%200%201%201.06%200%22/%3E%3C/svg%3E');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.92%206.085h.001a.749.749%200%201%201-1.342-.67c.169-.339.436-.701.849-.977C6.845%204.16%207.369%204%208%204a2.76%202.76%200%200%201%201.637.525c.503.377.863.965.863%201.725%200%20.448-.115.83-.329%201.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6%206%200%200%200-.26.16%201%201%200%200%200-.276.245.75.75%200%200%201-1.248-.832c.184-.264.42-.489.692-.661q.154-.1.313-.195l.007-.004c.1-.061.182-.11.258-.161a1%201%200%200%200%20.277-.245C8.96%206.514%209%206.427%209%206.25a.61.61%200%200%200-.262-.525A1.27%201.27%200%200%200%208%205.5c-.369%200-.595.09-.74.187a1%201%200%200%200-.34.398M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.344%202.343za8%208%200%200%201%2011.314%2011.314A8.002%208.002%200%200%201%20.234%2010.089a8%208%200%200%201%202.11-7.746m1.06%2010.253a6.5%206.5%200%201%200%209.108-9.275%206.5%206.5%200%200%200-9.108%209.275M6.03%204.97%208%206.94l1.97-1.97a.749.749%200%200%201%201.275.326.75.75%200%200%201-.215.734L9.06%208l1.97%201.97a.749.749%200%200%201-.326%201.275.75.75%200%200%201-.734-.215L8%209.06l-1.97%201.97a.749.749%200%200%201-1.275-.326.75.75%200%200%201%20.215-.734L6.94%208%204.97%206.03a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M4.72.22a.75.75%200%200%201%201.06%200l1%20.999a3.5%203.5%200%200%201%202.441%200l.999-1a.748.748%200%200%201%201.265.332.75.75%200%200%201-.205.729l-.775.776c.616.63.995%201.493.995%202.444v.327q0%20.15-.025.292c.408.14.764.392%201.029.722l1.968-.787a.75.75%200%200%201%20.556%201.392L13%207.258V9h2.25a.75.75%200%200%201%200%201.5H13v.5q-.002.615-.141%201.186l2.17.868a.75.75%200%200%201-.557%201.392l-2.184-.873A5%205%200%200%201%208%2016a5%205%200%200%201-4.288-2.427l-2.183.873a.75.75%200%200%201-.558-1.392l2.17-.868A5%205%200%200%201%203%2011v-.5H.75a.75.75%200%200%201%200-1.5H3V7.258L.971%206.446a.75.75%200%200%201%20.558-1.392l1.967.787c.265-.33.62-.583%201.03-.722a1.7%201.7%200%200%201-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72%201.28a.75.75%200%200%201%200-1.06m.53%206.28a.75.75%200%200%200-.75.75V11a3.5%203.5%200%201%200%207%200V7.25a.75.75%200%200%200-.75-.75ZM6.173%205h3.654A.17.17%200%200%200%2010%204.827V4.5a2%202%200%201%200-4%200v.327c0%20.096.077.173.173.173%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"IBM Plex Sans";--md-code-font:"IBM Plex Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-V01MJ4R3SQ"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-V01MJ4R3SQ",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-V01MJ4R3SQ",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  <script>
+    (function () {
+      if (!/(^|\.)bradpenney\.io$/.test(window.location.hostname)) {
+        return;
+      }
+      
+        if (typeof __md_analytics !== "undefined") {
+          var consent = __md_get("__consent");
+          if (consent && consent.analytics) { __md_analytics(); }
+        }
+      
+    })();
+  </script>
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="TLS Basics: Certificates, Handshakes, and the Chain of Trust - Exploring Networking" />
+<meta property="og:description" content="Every scary TLS error is one verification step failing. Learn the handshake, what a certificate asserts, and how the chain of trust actually gets verified." />
+<meta property="og:image" content="https://networking.bradpenney.io/assets/images/social/essentials/tls/tls_basics.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://networking.bradpenney.io/essentials/tls/tls_basics/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="TLS Basics: Certificates, Handshakes, and the Chain of Trust - Exploring Networking" />
+<meta property="twitter:description" content="Every scary TLS error is one verification step failing. Learn the handshake, what a certificate asserts, and how the chain of trust actually gets verified." />
+<meta property="twitter:image" content="https://networking.bradpenney.io/assets/images/social/essentials/tls/tls_basics.png" />
+</head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tls-basics-certificates-handshakes-and-the-chain-of-trust" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Exploring Networking" class="md-header__button md-logo" aria-label="Exploring Networking" data-md-component="logo">
+      
+  <img src="../../../images/exploring_networking.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Exploring Networking
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TLS Basics: Certificates, Handshakes, and the Chain of Trust
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Exploring Networking" class="md-nav__button md-logo" aria-label="Exploring Networking" data-md-component="logo">
+      
+  <img src="../../../images/exploring_networking.png" alt="logo">
+
+    </a>
+    Exploring Networking
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    📦 Essentials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    📦 Essentials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    HTTP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../http/from_url_to_endpoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From URL to Endpoint: How an API Gets Exposed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLS
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    TLS
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLS Basics: Certificates, Handshakes, and the Chain of Trust
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLS Basics: Certificates, Handshakes, and the Chain of Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-handshake-agreeing-to-speak-in-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Handshake: Agreeing to Speak in Secret
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-certificate-an-identity-card-with-fields-that-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Certificate: An Identity Card With Fields That Matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-chain-of-trust-why-any-of-this-is-believable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Chain of Trust: Why Any of This Is Believable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Chain of Trust: Why Any of This Is Believable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#self-signed-certificates-trust-without-a-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Signed Certificates: Trust Without a Chain
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seeing-the-chain-yourself" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seeing the Chain Yourself
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters-for-platform-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Matters for Platform Work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Scenarios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practice Problems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Further Reading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#related-networking-articles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Networking Articles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../https_for_apis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTPS for APIs: Where the Connection Gets Secured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DNS
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dns/how_dns_works/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How DNS Actually Works: Resolution, Records, and TTLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Load Balancers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Load Balancers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../load_balancers/load_balancer_basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Load Balancer Basics: One Address, Many Healthy Servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ⚡ Efficiency
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ⚡ Efficiency
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    HTTP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../efficiency/http/cors_explained/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS Explained: The Front-End/Back-End Border
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Gateways
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Gateways
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../efficiency/api_gateways/reverse_proxies_and_gateways/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reverse Proxies and API Gateways, Demystified
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLS
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    TLS
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../efficiency/tls/certificate_management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automating TLS Certificates: ACME and Let's Encrypt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-handshake-agreeing-to-speak-in-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Handshake: Agreeing to Speak in Secret
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-certificate-an-identity-card-with-fields-that-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Certificate: An Identity Card With Fields That Matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-chain-of-trust-why-any-of-this-is-believable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Chain of Trust: Why Any of This Is Believable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Chain of Trust: Why Any of This Is Believable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#self-signed-certificates-trust-without-a-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Signed Certificates: Trust Without a Chain
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seeing-the-chain-yourself" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seeing the Chain Yourself
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters-for-platform-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Matters for Platform Work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Scenarios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practice Problems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Further Reading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#related-networking-articles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Networking Articles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="tls-basics-certificates-handshakes-and-the-chain-of-trust">TLS Basics: Certificates, Handshakes, and the Chain of Trust<a class="headerlink" href="#tls-basics-certificates-handshakes-and-the-chain-of-trust" title="Link to this section">🔗</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">Part of a Learning Path</p>
+<p>This article is part of the <a href="https://bradpenney.io/pathways/cluster-to-internet">Put Your Kubernetes App on the Internet</a> pathway on <a href="https://bradpenney.io">bradpenney.io</a> — a guided sequence through the topic. It also stands on its own.</p>
+</div>
+<p>The site works in Chrome. The same URL in your deploy script throws <code>SSL: CERTIFICATE_VERIFY_FAILED</code>, and a teammate's <code>curl</code> agrees with the script. Same server, same certificate, same everything — except one client trusts it and the others don't. Nothing about that sentence makes sense until you know what actually happens in the first hundred milliseconds of an HTTPS connection.</p>
+<p>That's this article: the TLS handshake, what a certificate really asserts, and the chain of trust that decides, independently on every client, whether to believe it. Once you can see those three pieces, every TLS error message turns from scary to specific: each one is a single, nameable verification step failing.</p>
+<h2 id="the-handshake-agreeing-to-speak-in-secret">The Handshake: Agreeing to Speak in Secret<a class="headerlink" href="#the-handshake-agreeing-to-speak-in-secret" title="Link to this section">🔗</a></h2>
+<p>TLS (Transport Layer Security, the protocol behind the <code>s</code> in <code>https</code>) has one job at connection time: let two machines that have never met agree on encryption keys, over a network where anyone might be listening. Everything below happens before the first byte of your actual request:</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant C as Client
+    participant S as Server
+    C-&gt;&gt;S: ClientHello — TLS versions and ciphers I support
+    S-&gt;&gt;C: ServerHello — here's what we'll use + my CERTIFICATE
+    Note over C: Verify the certificate:&lt;br/&gt;trusted issuer? hostname match? dates valid?
+    C-&gt;&gt;S: Key exchange — establish a shared secret
+    Note over C,S: Both derive the same symmetric session keys
+    C-&gt;&gt;S: Finished (encrypted)
+    S-&gt;&gt;C: Finished (encrypted)
+    Note over C,S: Everything from here is fast, symmetric encryption</code></pre>
+<p>Three things in that diagram carry most of the weight:</p>
+<ul>
+<li><strong>The certificate is the server's opening claim:</strong> "I am <code>api.example.com</code>, and here is my public key." The client doesn't take that on faith — the verification step in the middle is where trust is earned, and it's where every TLS failure you've ever seen lives.</li>
+<li><strong>The key exchange produces a shared secret an eavesdropper can't derive</strong>, even though they watched every message. That this is possible at all is the magic of <a href="https://cs.bradpenney.io/efficiency/security/public_key_cryptography/">public-key cryptography</a>; the detour is worth it if you've never seen <em>why</em> it works.</li>
+<li><strong>The expensive asymmetric crypto is only the introduction.</strong> Once session keys exist, the connection switches to symmetric encryption, which is fast enough that "TLS is slow" hasn't been true for years. Modern TLS 1.3 completes all of this in a single round trip.</li>
+</ul>
+<p>This article covers the base handshake, where only the <em>server</em> proves its identity. Production systems increasingly run the mutual version (both sides presenting certificates), which is covered in depth in <a href="../https_for_apis/">HTTPS for APIs</a>.</p>
+<h2 id="the-certificate-an-identity-card-with-fields-that-matter">The Certificate: An Identity Card With Fields That Matter<a class="headerlink" href="#the-certificate-an-identity-card-with-fields-that-matter" title="Link to this section">🔗</a></h2>
+<p>The handshake's middle step, <em>verify the certificate</em>, is where the rest of this article lives: first the document being verified, then the chain that decides whether to believe it.</p>
+<p>A certificate is a structured document binding a <strong>name</strong> to a <strong>public key</strong>, signed by someone whose job is to have checked the binding. Four fields do almost all the work:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">What it says</th>
+<th style="text-align: left;">Where it bites</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Subject / SAN</strong></td>
+<td style="text-align: left;">The hostnames this cert is valid for</td>
+<td style="text-align: left;">Hostname verification checks the <strong>SAN</strong> (Subject Alternative Name) list — the legacy Common Name field is ignored by modern clients</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Issuer</strong></td>
+<td style="text-align: left;">The Certificate Authority (CA) that signed it</td>
+<td style="text-align: left;">This is the link into the chain of trust below</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Validity</strong></td>
+<td style="text-align: left;">Not-before and not-after dates</td>
+<td style="text-align: left;">Expiry is the most common TLS outage; clients also reject certs from the "future"</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Public key</strong></td>
+<td style="text-align: left;">The key the handshake will use</td>
+<td style="text-align: left;">The server must hold the matching <em>private</em> key — the cert alone is public information</td>
+</tr>
+</tbody>
+</table>
+<p>Two SAN details worth knowing before you buy or issue anything:</p>
+<ul>
+<li><strong>Wildcards cover exactly one label.</strong> <code>*.example.com</code> matches <code>api.example.com</code> but <em>not</em> <code>example.com</code> (no label) and <em>not</em> <code>api.v2.example.com</code> (two labels). Certs routinely carry multiple SAN entries precisely because of this.</li>
+<li><strong>The match is against the name the client asked for.</strong> Reach the same server via a different hostname (an internal DNS alias, a raw IP) and the handshake fails with a hostname mismatch even though the server and cert are perfectly healthy.</li>
+</ul>
+<h2 id="the-chain-of-trust-why-any-of-this-is-believable">The Chain of Trust: Why Any of This Is Believable<a class="headerlink" href="#the-chain-of-trust-why-any-of-this-is-believable" title="Link to this section">🔗</a></h2>
+<p>Anyone can generate a certificate claiming to be <code>api.example.com</code>: the format proves nothing. What makes a certificate <em>mean</em> something is who signed it, and whether the client can follow signatures back to someone it already trusts.</p>
+<pre class="mermaid"><code>flowchart TD
+    R[Root CA certificate&lt;br/&gt;pre-installed in the client's TRUST STORE] --&gt;|signs| I[Intermediate CA certificate]
+    I --&gt;|signs| L[Leaf certificate&lt;br/&gt;api.example.com]
+    style R fill:#2f855a,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style I fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style L fill:#1a202c,stroke:#cbd5e0,stroke-width:2px,color:#fff</code></pre>
+<ul>
+<li>Every client ships a <strong>trust store</strong>: a bundle of a few hundred <strong>root CA</strong> certificates it trusts unconditionally. Your OS has one, browsers may carry their own, and language runtimes often bundle theirs.</li>
+<li>Roots don't sign server certificates directly; they're kept offline and sign <strong>intermediates</strong>, which do the day-to-day signing. So your certificate's trust path is leaf → intermediate → root.</li>
+<li>During the handshake, the client verifies each signature up the chain until it reaches a root <strong>in its own trust store</strong>. Reach one: trusted. Run out of links: rejected.</li>
+</ul>
+<p>The operational catch: <strong>the server is responsible for sending the intermediates.</strong> The client only holds roots, so a server that sends just its leaf certificate leaves a gap in the chain. This is exactly the "works in Chrome, fails in <code>curl</code>" mystery from the opening — browsers cache intermediates from other sites and can even fetch missing ones, while <code>curl</code>, Python, and most libraries verify strictly with what they're given. Same certificate, different verifiers, different verdicts. The fix is always configuration: serve the <strong>full chain</strong> (the <code>fullchain.pem</code> that Let's Encrypt tooling generates, never just <code>cert.pem</code>).</p>
+<div class="admonition warning">
+<p class="admonition-title">Different clients, different trust stores</p>
+<p>Trust isn't a property of the certificate — it's a property of <em>each client's trust store</em>. A minimal container image with no <code>ca-certificates</code> package trusts <strong>nothing</strong> and fails every TLS connection; an old base image may be missing newer roots. When one environment rejects a cert that others accept, compare trust stores before blaming the server.</p>
+</div>
+<h3 id="self-signed-certificates-trust-without-a-chain">Self-Signed Certificates: Trust Without a Chain<a class="headerlink" href="#self-signed-certificates-trust-without-a-chain" title="Link to this section">🔗</a></h3>
+<p>A <strong>self-signed</strong> certificate is its own issuer: a chain of length one, anchored nowhere. The crypto is exactly as strong as a CA-signed cert; what's missing is any <em>reason for a stranger to believe it</em>. Clients reject it because there's no path into their trust store.</p>
+<p>Treat self-signed certificates as a historical artifact, not an option. The old advice ("self-signed is fine internally") hasn't survived the modern threat landscape, where attackers, increasingly automated ones, win by chaining small weaknesses together: a fleet that tolerates unverifiable certificates is a fleet that can't tell an impostor from a service, and one that trains its scripts and people to skip verification. Internal infrastructure that needs TLS deserves a <strong>private CA</strong>: certificates signed by a root you control and distribute to trust stores, giving you real chains, short lifetimes, and <a href="../../../efficiency/tls/certificate_management/">automated issuance</a>. That's how internal mTLS works at scale, and the tooling has made it nearly free.</p>
+<p>The reflexive <code>curl -k</code> / <code>verify=False</code> deserves the same verdict, harder: it doesn't "work around" the trust problem, it turns off the only check standing between you and connecting to an impostor. In scripts that ship to production, treat <code>-k</code> as a bug.</p>
+<p>For your <em>public</em> app, you'll get a chain-anchored certificate for free: Let's Encrypt issues them after verifying you control the domain (those <a href="../../dns/how_dns_works/">TXT records</a> again), and <a href="../../../efficiency/tls/certificate_management/">the automation that renews them forever</a> means no human ever tracks the dates.</p>
+<h2 id="seeing-the-chain-yourself">Seeing the Chain Yourself<a class="headerlink" href="#seeing-the-chain-yourself" title="Link to this section">🔗</a></h2>
+<p><code>openssl s_client</code> shows you the handshake from the client's chair, showing what was presented and whether verification passed:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Inspect what the server presents</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nb">echo</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>api.example.com:443<span class="w"> </span>-showcerts<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;s:|i:&quot;</span><span class="w">                                     </span><span class="c1"># (1)!</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="c1">#  0 s:CN=api.example.com</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="c1">#    i:C=US, O=Let&#39;s Encrypt, CN=R13</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="c1">#  1 s:C=US, O=Let&#39;s Encrypt, CN=R13</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="c1">#    i:C=US, O=Internet Security Research Group, CN=ISRG Root X1</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="nb">echo</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>api.example.com:443<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;Verify return code&quot;</span><span class="w">                            </span><span class="c1"># (2)!</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="c1"># Verify return code: 0 (ok)</span>
+</span></code></pre></div></td></tr></table></div>
+<ol>
+<li><code>-showcerts</code> prints every certificate the server sent; the <code>s:</code>/<code>i:</code> lines are each one's subject and issuer. Read the chain here: cert 0 (the leaf) is issued by the same name that cert 1 carries as its subject, link by link toward a root. If the list stops before a trust-store root, the server isn't sending its intermediates.</li>
+<li>The verdict after <code>openssl</code> verifies the chain against the local trust store. <code>0 (ok)</code> means trusted; anything else names the failing step — <code>unable to get local issuer certificate</code> (broken/missing chain), <code>certificate has expired</code>, <code>self-signed certificate</code>.</li>
+</ol>
+<p>For a public endpoint, <a href="https://www.ssllabs.com/ssltest/">SSL Labs</a> runs this analysis exhaustively (chain completeness included), and <a href="https://badssl.com/">badssl.com</a> hosts deliberately broken examples of everything in this article, so you can see each failure mode on demand.</p>
+<h2 id="why-this-matters-for-platform-work">Why This Matters for Platform Work<a class="headerlink" href="#why-this-matters-for-platform-work" title="Link to this section">🔗</a></h2>
+<ul>
+<li><strong>TLS errors name their failing step, once you know the steps.</strong> Expired, hostname mismatch, unknown issuer, incomplete chain: each maps to one check in the handshake's verification. Read the error as a pointer into the chain, not as generic breakage.</li>
+<li><strong>"Works here, fails there" is a <em>verifier</em> difference, not a server flake.</strong> Different trust stores, different strictness about intermediates. Compare what each client trusts before restarting anything.</li>
+<li><strong>Certificates are public; private keys are the secret.</strong> The handshake only proves identity because the server demonstrates possession of the private key matching the cert. Guard keys accordingly — a leaked cert is a shrug, a leaked key is an incident.</li>
+</ul>
+<h2 id="common-scenarios">Common Scenarios<a class="headerlink" href="#common-scenarios" title="Link to this section">🔗</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1 0 1.43-.98 2.63-2.31 3l1.46 1.44C20.88 15.61 22 13.95 22 12a5 5 0 0 0-5-5m-1 4h-2.19l2 2H16zM2 4.27l3.11 3.11A4.99 4.99 0 0 0 2 12a5 5 0 0 0 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1 0-1.59 1.21-2.9 2.76-3.07L8.73 11H8v2h2.73L13 15.27V17h1.73l4.01 4L20 19.74 3.27 3z"/></svg></span> Works in the browser, fails in <code>curl</code></label><label for="__tabbed_1_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3m5.86 10.31C16.23 21.22 14.28 22.45 12 23c-2.56-.61-4.7-2.07-6.42-4.37C3.86 16.34 3 13.8 3 11V5l9-4 9 4v6c0 2.39-.64 4.61-1.92 6.67l-2.91-2.91c.52-.79.83-1.76.83-2.76a5 5 0 0 0-5-5 5 5 0 0 0-5 5 5 5 0 0 0 5 5c1 0 1.97-.31 2.76-.83z"/></svg></span> Hostname mismatch on a healthy cert</label><label for="__tabbed_1_3"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12h2v6h-2zm0 8h2v2h-2zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c2.3 0 4.3-.8 6-2V10h3.8c-.9-4.6-5-8-9.8-8m4.2 14.2L11 13V7h1.5v5.2l4.5 2.7z"/></svg></span> Valid cert rejected on one machine only</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>The server is sending only its leaf certificate. Browsers paper over the missing intermediate (cached or fetched on the fly); strict clients verify only what arrives and fail with <code>unable to get local issuer certificate</code>. Confirm with <code>openssl s_client -showcerts</code> (the chain stops short), and configure the server to serve the full chain.</p>
+</div>
+<div class="tabbed-block">
+<p><code>SSL: no alternative certificate subject name matches</code> means the name the client used isn't in the SAN list — often a wildcard surprise (<code>*.example.com</code> doesn't cover the apex or a second level) or a client reaching the server by an alias or IP the cert never claimed. Fix the SAN list or the name the client uses; nothing is "broken."</p>
+</div>
+<div class="tabbed-block">
+<p>One host reports <code>certificate is not yet valid</code> or <code>expired</code> while everyone else connects fine. Check that machine's <strong>clock</strong>: certificate validity is compared against local time, and a drifted VM, container, or embedded device rejects perfectly good certs. (Modern short-lived certificates make skew bite faster than it used to.)</p>
+</div>
+</div>
+</div>
+<h2 id="practice-problems">Practice Problems<a class="headerlink" href="#practice-problems" title="Link to this section">🔗</a></h2>
+<details class="question">
+<summary>Practice Problem 1: The Internal Service</summary>
+<p>Your app must call an internal service that presents a certificate issued by your company's private CA. The connection fails with <code>CERTIFICATE_VERIFY_FAILED</code>. A teammate suggests adding <code>verify=False</code> "since it's internal anyway." What's the right fix, and why is the suggestion worse than it sounds?</p>
+<details class="tip">
+<summary>Solution</summary>
+<p>The right fix is adding the <strong>company CA's root certificate to the client's trust store</strong> (or pointing the client at it, e.g. <code>REQUESTS_CA_BUNDLE</code> / <code>-CAfile</code>). That completes the chain: the service's cert verifies against your CA root exactly as a public cert verifies against a public root. <code>verify=False</code> doesn't scope to "our internal CA": it disables verification of <strong>everyone</strong>, so the client will happily complete a handshake with any machine that answers on that address. On an internal network, that's precisely the impostor scenario TLS exists to prevent — and the flag never gets removed once it ships.</p>
+</details>
+</details>
+<details class="question">
+<summary>Practice Problem 2: Reading the Chain</summary>
+<p><code>openssl s_client -showcerts</code> against a failing endpoint prints exactly one certificate: <code>s:CN=api.example.com</code>, <code>i:C=US, O=Let's Encrypt, CN=R13</code>, and <code>Verify return code: 20 (unable to get local issuer certificate)</code>. Diagnose it precisely: what's missing, whose fault is it, and why do some clients still connect?</p>
+<details class="tip">
+<summary>Solution</summary>
+<p>The server sent only the <strong>leaf</strong>. Its issuer (<code>R13</code>) is a Let's Encrypt <strong>intermediate</strong>, not a root in anyone's trust store, and the server never supplied it, so strict clients can't link the leaf to a trusted root: verification dies at the missing link (code 20). It's a <strong>server configuration</strong> fault: it's serving <code>cert.pem</code> instead of <code>fullchain.pem</code>. Clients that still connect (mainly browsers) have that intermediate cached from other Let's Encrypt sites or fetch it on demand — which is why the outage looks intermittent and client-specific instead of total.</p>
+</details>
+</details>
+<details class="question">
+<summary>Practice Problem 3: One Wildcard, Three Hostnames</summary>
+<p>You have a certificate whose only SAN entry is <code>*.example.com</code>. Which of these handshakes succeed: (a) <code>https://api.example.com</code>, (b) <code>https://example.com</code>, (c) <code>https://api.v2.example.com</code>?</p>
+<details class="tip">
+<summary>Solution</summary>
+<p>Only <strong>(a)</strong>. A wildcard matches <strong>exactly one label</strong> at its position: <code>api.example.com</code> fits <code>*.example.com</code>. The apex <code>example.com</code> (b) has <em>no</em> label where the wildcard sits, and <code>api.v2.example.com</code> (c) has <em>two</em> — both fail hostname verification with a perfectly valid, unexpired certificate. Covering all three takes multiple SAN entries (e.g., <code>example.com</code>, <code>*.example.com</code>, <code>*.v2.example.com</code>), which is why SAN lists, not single names, are the norm.</p>
+</details>
+</details>
+<h2 id="key-takeaways">Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this section">🔗</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Concept</th>
+<th style="text-align: left;">What It Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Handshake</strong></td>
+<td style="text-align: left;">Negotiate → present certificate → verify → exchange keys → switch to fast symmetric encryption</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Certificate</strong></td>
+<td style="text-align: left;">A signed binding of hostnames (SAN) to a public key; public by design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Private key</strong></td>
+<td style="text-align: left;">The actual secret; possession of it is what the handshake proves</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Chain of trust</strong></td>
+<td style="text-align: left;">Leaf → intermediate → root, verified against the <em>client's</em> trust store</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Full chain serving</strong></td>
+<td style="text-align: left;">Servers must send intermediates; omitting them breaks strict clients only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Wildcard SANs</strong></td>
+<td style="text-align: left;"><code>*.example.com</code> covers one label: not the apex, not deeper subdomains</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>-k</code> / <code>verify=False</code></strong></td>
+<td style="text-align: left;">Disables the impostor check entirely; a bug in anything bound for production</td>
+</tr>
+</tbody>
+</table>
+<p>The handshake earns encryption; the chain of trust earns <em>belief</em>. Every TLS failure you'll meet is one of a half-dozen verification steps saying no — and now each one has a name, a command that reveals it, and a fix that isn't <code>-k</code>.</p>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Link to this section">🔗</a></h2>
+<h3 id="related-networking-articles">Related Networking Articles<a class="headerlink" href="#related-networking-articles" title="Link to this section">🔗</a></h3>
+<ul>
+<li><strong><a href="../https_for_apis/">HTTPS for APIs: Where the Connection Gets Secured</a></strong> — where TLS terminates in production, and mTLS: the mutual version of this handshake.</li>
+<li><strong><a href="../../dns/how_dns_works/">How DNS Actually Works</a></strong> — the TXT records certificate authorities use to verify you control a domain.</li>
+<li><strong><a href="../../../efficiency/tls/certificate_management/">Automating TLS Certificates: ACME and Let's Encrypt</a></strong> — automating issuance and renewal so none of this ever pages you.</li>
+</ul>
+<h3 id="external-resources">External Resources<a class="headerlink" href="#external-resources" title="Link to this section">🔗</a></h3>
+<ul>
+<li><a href="https://letsencrypt.org/how-it-works/">Let's Encrypt: How It Works</a> — domain-validated certificates and the ACME protocol, plainly explained.</li>
+<li><a href="https://www.ssllabs.com/ssltest/">Qualys SSL Labs</a> — exhaustive analysis of any public endpoint's TLS, chain included.</li>
+<li><a href="https://badssl.com/">badssl.com</a> — live examples of every broken-TLS variant in this article, safe to poke at.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-coffee">
+      <a
+        href="https://buymeacoffee.com/brad.penney"
+        target="_blank"
+        rel="noopener"
+        class="md-footer-coffee__link"
+      >
+        <span>Enjoying this? Buy me a coffee</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2 21h18v-2H2M20 8h-2V5h2m0-2H4v10a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-3h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2"/></svg>
+      </a>
+    </div>
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; Brad Penney — <a href="#__consent">Change cookie settings</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/bradpenney" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://linkedin.com/in/bradpenney" target="_blank" rel="noopener" title="linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://bradpenney.io" target="_blank" rel="noopener" title="bradpenney.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M351.9 280H161c2.9 64.5 17.2 123.9 37.5 167.4 11.4 24.5 23.7 41.8 35.1 52.4 11.2 10.5 18.9 12.2 22.9 12.2s11.7-1.7 22.9-12.2c11.4-10.6 23.7-28 35.1-52.4 20.3-43.5 34.6-102.9 37.5-167.4zm-191-48h190.9c-2.8-64.5-17.1-123.9-37.4-167.4-11.4-24.4-23.7-41.8-35.1-52.4C268.1 1.7 260.4 0 256.4 0s-11.7 1.7-22.9 12.2c-11.4 10.6-23.7 28-35.1 52.4-20.3 43.5-34.6 102.9-37.5 167.4m-48 0c3.5-85.6 25.6-165.1 57.9-217.3C78.7 47.3 10.9 131.2 1.5 232zM1.5 280c9.4 100.8 77.2 184.7 169.3 217.3-32.3-52.2-54.4-131.7-57.9-217.3zm398.4 0c-3.5 85.6-25.6 165.1-57.9 217.3 92.1-32.7 159.9-116.5 169.3-217.3zm111.4-48C501.9 131.2 434.1 47.3 342 14.7c32.3 52.2 54.4 131.7 57.9 217.3z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://networking.bradpenney.io/feed_rss_created.xml" target="_blank" rel="noopener" title="networking.bradpenney.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M0 64c0-17.7 14.3-32 32-32 229.8 0 416 186.2 416 416 0 17.7-14.3 32-32 32s-32-14.3-32-32C384 253.6 226.4 96 32 96 14.3 96 0 81.7 0 64m0 352a64 64 0 1 1 128 0 64 64 0 1 1-128 0m32-256c159.1 0 288 128.9 288 288 0 17.7-14.3 32-32 32s-32-14.3-32-32c0-123.7-100.3-224-224-224-17.7 0-32-14.3-32-32s14.3-32 32-32"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+
+
+<h4>Cookie consent</h4>
+<p>We use cookies to measure how effective our content is and whether you find what you're looking for. With your consent, you help make these learning sites better. You can change your choice at any time.</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+    
+    
+      
+    
+    
+      
+        
+  
+  
+    
+    
+  
+  <li class="task-list-item">
+    <label class="task-list-control">
+      <input type="checkbox" name="analytics" >
+      <span class="task-list-indicator"></span>
+      Google Analytics
+    </label>
+  </li>
+
+      
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Reject</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Manage settings</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "content.code.highlight", "content.tooltips", "content.code.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
