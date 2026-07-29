@@ -9,13 +9,13 @@ description: "What does 'exposing an endpoint' actually mean? Follow a URL throu
 !!! tip "Part of a Learning Path"
     This article is part of two learning paths on [bradpenney.io](https://bradpenney.io): [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) and [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet). It also stands on its own.
 
-You've been handed a task: "expose an endpoint so the billing team can hit it." You can `curl` endpoints all day, but the word *expose* is doing a lot of quiet work. Expose it where? To whom? What physically has to be true for `https://api.example.com/orders` to reach your code — and what stops the whole internet from reaching it too?
+"Expose an endpoint so the billing team can hit it" is a common task, and the word *expose* is doing a lot of quiet work in that sentence: curling endpoints all day doesn't automatically answer it. Expose it where? To whom? What physically has to be true for `https://api.example.com/orders` to reach the code behind it, and what stops the whole internet from reaching it too?
 
 This is the article that turns "expose an endpoint" from a vague instruction into a concrete chain of things you can point at. We'll follow a single URL from the address bar to the line of code that answers it.
 
 ## The URL Is a Set of Instructions
 
-A URL isn't one thing — it's several routing instructions packed into one string. Pull `https://api.example.com:443/orders?status=open` apart:
+A URL isn't one thing: it's several routing instructions packed into one string. Pull `https://api.example.com:443/orders?status=open` apart:
 
 | Part | Value | What it tells the client |
 | :--- | :--- | :--- |
@@ -25,7 +25,7 @@ A URL isn't one thing — it's several routing instructions packed into one stri
 | **Path** | `/orders` | *Which endpoint* on the server to invoke |
 | **Query** | `?status=open` | Parameters for that endpoint |
 
-"Exposing an endpoint" means making every one of these resolve to something real: a name that resolves to an IP, a machine reachable on a port, a process listening on that port, and code that handles that path. Break any link and the endpoint is "down" — and knowing the chain is how you diagnose *which* link broke.
+"Exposing an endpoint" means making every one of these resolve to something real: a name that resolves to an IP, a machine reachable on a port, a process listening on that port, and code that handles that path. Break any link and the endpoint is "down," and knowing the chain is how you diagnose *which* link broke.
 
 ## The Journey of One Request
 
@@ -49,7 +49,7 @@ Each stage is a thing that can be misconfigured, and each maps to a specific deb
 
 ## Stage 1: DNS Turns a Name Into an Address
 
-Computers don't connect to `api.example.com` — they connect to an IP address like `203.0.113.10`. DNS is the lookup that translates one to the other. "Exposing" a name means creating a DNS record that points it at your server's IP.
+Computers don't connect to `api.example.com`: they connect to an IP address like `203.0.113.10`. DNS is the lookup that translates one to the other. "Exposing" a name means creating a DNS record that points it at your server's IP.
 
 ```bash title="See what a hostname resolves to" linenums="1"
 dig +short api.example.com   # (1)!
@@ -58,21 +58,21 @@ dig +short api.example.com   # (1)!
 nslookup api.example.com     # (2)!
 ```
 
-1. `dig +short` returns just the resolved IP — the fastest way to confirm a name points where you expect.
+1. `dig +short` returns just the resolved IP: the fastest way to confirm a name points where you expect.
 2. `nslookup` is the cross-platform equivalent if `dig` isn't installed.
 
-If `dig` returns nothing or the wrong IP, the endpoint will be unreachable no matter how healthy your server is — the client can't even find it. (DNS failures are common enough to be their own debugging topic.)
+If `dig` returns nothing or the wrong IP, the endpoint will be unreachable no matter how healthy your server is: the client can't even find it. (DNS failures are common enough to be their own debugging topic.)
 
 ## Stage 2: The Port Is the Door
 
-An IP address gets you to the *machine*. A single machine can run many services at once — a web API, a database, an SSH daemon — so it needs a way to direct incoming connections to the right one. That's the **port**: a numbered door on the IP.
+An IP address gets you to the *machine*. A single machine can run many services at once (a web API, a database, an SSH daemon), so it needs a way to direct incoming connections to the right one. That's the **port**: a numbered door on the IP.
 
 - `80` — HTTP (unencrypted), the default for `http://`
 - `443` — HTTPS (encrypted), the default for `https://`
 - `22` — SSH
 - `5432` — PostgreSQL, `3306` — MySQL, `6379` — Redis
 
-This is why `https://api.example.com` needs no `:443` — the scheme implies the port. Exposing an API means a process is **listening** on a port *and* the network path to that port is **open**. Two separate conditions, two separate failure modes:
+This is why `https://api.example.com` needs no `:443`: the scheme implies the port. Exposing an API means a process is **listening** on a port *and* the network path to that port is **open**. Two separate conditions, two separate failure modes:
 
 ```bash title="Test whether a port is reachable" linenums="1"
 nc -zv api.example.com 443   # (1)!
@@ -88,12 +88,12 @@ curl -v https://api.example.com/   # (2)!
 
     A process can be happily listening on port 443 while a firewall or cloud security group silently drops every packet to it. From the client, both look identical: a hang or "connection refused/timed out." Confirm both: is something *listening* (on the server, `ss -tlnp`), and is the port *reachable* (from the client, `nc -zv`)?
 
-## Stage 3: Localhost vs the World — What "Exposed" Really Decides
+## Stage 3: Localhost vs the World: What "Exposed" Really Decides
 
 Here's the part that's secretly a security decision. When a process starts listening, it **binds** to an address, and that choice determines who can reach it:
 
-- **Bind to `127.0.0.1` (localhost)** — only processes *on the same machine* can connect. The endpoint exists but is invisible to the network. This is why your local dev server isn't on the internet.
-- **Bind to `0.0.0.0` (all interfaces)** — accept connections from *anywhere* that can route to the machine. This is "exposed to the network."
+- **Bind to `127.0.0.1` (localhost)**: only processes *on the same machine* can connect. The endpoint exists but is invisible to the network. This is why your local dev server isn't on the internet.
+- **Bind to `0.0.0.0` (all interfaces)**: accept connections from *anywhere* that can route to the machine. This is "exposed to the network."
 
 ```bash title="See what's listening, and where it's bound" linenums="1"
 sudo ss -tlnp   # (1)!
@@ -102,13 +102,13 @@ sudo ss -tlnp   # (1)!
 # LISTEN  0.0.0.0:443         <- all interfaces (exposed)
 ```
 
-1. `ss -tlnp` lists listening TCP sockets with the bound address and owning process. The owning-process column (`-p`) is only populated when you run as root — hence `sudo`; without it that column is blank. The bind address tells you instantly whether a service is private or exposed.
+1. `ss -tlnp` lists listening TCP sockets with the bound address and owning process. The owning-process column (`-p`) is only populated when you run as root, hence `sudo`; without it that column is blank. The bind address tells you instantly whether a service is private or exposed.
 
-"Expose an endpoint for the billing team" is really a binding-plus-reachability question: should it bind to all interfaces and be reachable on the internet, or bind privately and only be reachable from inside your network? Most internal APIs should *not* be bound to `0.0.0.0` on a public IP — they should sit on a private network or behind a [gateway](../../efficiency/api_gateways/reverse_proxies_and_gateways.md), reachable only by the systems that need them. Getting this wrong is how databases end up exposed to the entire internet.
+"Expose an endpoint for the billing team" is really a binding-plus-reachability question: should it bind to all interfaces and be reachable on the internet, or bind privately and only be reachable from inside your network? Most internal APIs should *not* be bound to `0.0.0.0` on a public IP: they should sit on a private network or behind a [gateway](../../efficiency/api_gateways/reverse_proxies_and_gateways.md), reachable only by the systems that need them. Getting this wrong is how databases end up exposed to the entire internet.
 
 ## Stage 4: The Path Reaches a Handler
 
-Once the connection is open and the request arrives, the listening process reads the **path** (`/orders`) and routes it to the code that handles it — the "endpoint" in the application sense. This is the boundary where networking hands off to your application: the route table maps `/orders` to a function, and that function runs.
+Once the connection is open and the request arrives, the listening process reads the **path** (`/orders`) and routes it to the code that handles it: the "endpoint" in the application sense. This is the boundary where networking hands off to your application, where the route table maps `/orders` to a function that then runs.
 
 So the full meaning of "the `/orders` endpoint is exposed":
 
@@ -117,27 +117,27 @@ So the full meaning of "the `/orders` endpoint is exposed":
 3. A process is **listening** on that port, bound to an interface clients can reach.
 4. That process has a **route** for `/orders` that runs a handler.
 
-Four conditions. When an endpoint is "down," exactly one of them has usually broken — and now you know which command checks each.
+Four conditions. When an endpoint is "down," exactly one of them has usually broken, and now you know which command checks each.
 
 ## Why This Matters for Platform Work
 
 - **It turns "the API is unreachable" into a four-step checklist.** Resolve the name (`dig`), reach the port (`nc`), confirm something's listening (`ss`), then check the application route. You stop guessing and start bisecting.
-- **It's the difference between a private and an exposed service.** The bind address and firewall rules — not the application code — decide whether the billing team or the entire internet can reach your endpoint.
+- **It's the difference between a private and an exposed service.** The bind address and firewall rules (not the application code) decide whether the billing team or the entire internet can reach your endpoint.
 - **It frames where a gateway fits.** Most production APIs aren't exposed directly; they bind privately and a [reverse proxy or API gateway](../../efficiency/api_gateways/reverse_proxies_and_gateways.md) is the only thing bound to the public port. Understanding direct exposure first makes the gateway's job obvious.
 
 ## Common Scenarios
 
 === ":material-magnify: 'Connection refused' immediately"
 
-    The client reached the machine, but **nothing is listening** on that port (or the process crashed). DNS and routing are fine. Check on the server with `ss -tlnp` — is your process actually up and bound to the expected port? "Refused" is fast and definite, which distinguishes it from a firewall *timeout*.
+    The client reached the machine, but **nothing is listening** on that port (or the process crashed). DNS and routing are fine. Check on the server with `ss -tlnp`: is your process actually up and bound to the expected port? "Refused" is fast and definite, which distinguishes it from a firewall *timeout*.
 
 === ":material-timer-sand: Connection hangs, then times out"
 
-    Packets are being **silently dropped** — almost always a firewall or cloud security group with no rule allowing the port. The server never gets a chance to refuse. Check the security group / `iptables` rules for an allow rule on the port. A timeout (vs an instant refusal) is the signature of a firewall.
+    Packets are being **silently dropped**: almost always a firewall or cloud security group with no rule allowing the port. The server never gets a chance to refuse. Check the security group / `iptables` rules for an allow rule on the port. A timeout (vs an instant refusal) is the signature of a firewall.
 
 === ":material-home: 'Works on the server but not remotely'"
 
-    `curl localhost:8080` works when you SSH in, but remote clients can't connect. The service is bound to **`127.0.0.1`**, not `0.0.0.0` — it's listening for local connections only. Confirm with `ss -tlnp` and rebind to an appropriate interface (or, better, front it with a gateway rather than exposing it directly).
+    `curl localhost:8080` works when you SSH in, but remote clients can't connect. The service is bound to **`127.0.0.1`**, not `0.0.0.0`: it's listening for local connections only. Confirm with `ss -tlnp` and rebind to an appropriate interface (or, better, front it with a gateway rather than exposing it directly).
 
 ## Practice Problems
 
@@ -155,7 +155,7 @@ Four conditions. When an endpoint is "down," exactly one of them has usually bro
 
     ??? tip "Solution"
 
-        The service is **bound to `127.0.0.1`** instead of `0.0.0.0`. It's listening only for connections originating on the same machine, so local `curl` works but remote clients are refused. Confirm with `ss -tlnp` — you'll see `127.0.0.1:8080`. The fix is to bind to an interface remote clients can reach (or, preferably, keep it bound privately and put a reverse proxy in front). "Connection refused" with everything else healthy points at the bind address.
+        The service is **bound to `127.0.0.1`** instead of `0.0.0.0`. It's listening only for connections originating on the same machine, so local `curl` works but remote clients are refused. Confirm with `ss -tlnp`: you'll see `127.0.0.1:8080`. The fix is to bind to an interface remote clients can reach (or, preferably, keep it bound privately and put a reverse proxy in front). "Connection refused" with everything else healthy points at the bind address.
 
 ??? question "Practice Problem 3: Why No Port in the URL?"
 
@@ -163,7 +163,7 @@ Four conditions. When an endpoint is "down," exactly one of them has usually bro
 
     ??? tip "Solution"
 
-        The **scheme implies a default port**: `https` defaults to 443 and `http` to 80, so the client connects there automatically when no port is given. The public API listens on the standard 443, so the port can be omitted. The internal tool listens on a **non-standard** port (8080), which no scheme implies, so it must be stated explicitly. The port is always part of the connection — it's just hidden when it matches the scheme's default.
+        The **scheme implies a default port**: `https` defaults to 443 and `http` to 80, so the client connects there automatically when no port is given. The public API listens on the standard 443, so the port can be omitted. The internal tool listens on a **non-standard** port (8080), which no scheme implies, so it must be stated explicitly. The port is always part of the connection, just hidden when it matches the scheme's default.
 
 ## Key Takeaways
 
@@ -176,7 +176,29 @@ Four conditions. When an endpoint is "down," exactly one of them has usually bro
 | **Bind address** | `127.0.0.1` = local only; `0.0.0.0` = exposed to the network (`ss -tlnp`) |
 | **Exposed endpoint** | DNS resolves + port reachable + process listening + route handles the path |
 
-"Expose an endpoint" stops being intimidating once you can see the chain it really means: a name that resolves, a port that's reachable, a process that's listening on the right interface, and a route that handles the path. Each link has a command that proves it's working — so the next time someone says an API is unreachable, you won't guess. You'll bisect the chain and find the one link that broke.
+"Expose an endpoint" stops being intimidating once you can see the chain it really means: a name that resolves, a port that's reachable, a process that's listening on the right interface, and a route that handles the path. Each link has a command that proves it's working, so the next time someone says an API is unreachable, you won't guess. You'll bisect the chain and find the one link that broke.
+
+## What's Next
+
+Where you go next depends on which thread you're pulling:
+
+<div class="grid cards two-col" markdown>
+
+-   :material-refresh-off: **[Why HTTP APIs Forget You: Statelessness](https://cs.bradpenney.io/efficiency/web/http_statelessness/)**
+
+    ---
+
+    Continuing **[How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work)** — why every request has to re-introduce itself, even to the endpoint you just found.
+
+-   :material-dns: **[How DNS Actually Works](../dns/how_dns_works.md)**
+
+    ---
+
+    Continuing **[Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet)** — the resolution stage from above, in full depth.
+
+</div>
+
+---
 
 ## Further Reading
 
