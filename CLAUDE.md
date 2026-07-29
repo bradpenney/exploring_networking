@@ -48,6 +48,8 @@ This is a Material for MkDocs site documenting practical networking for SREs and
 Example opening:
 > "It's 2am. The API is timing out. Users are getting 502 errors. You check the application logs—nothing. The pods are running. But something between the client and your service is broken. **This is when you need to understand load balancer health checks.**"
 
+**⚠️ Watch the formula, not just the topic (2026-07-28):** this immersive present-tense scenario is a different risk than "you've done X" (it's inviting the reader into a moment, not claiming their past), but it still bets they're willing to place themselves in it. Fine to keep as the incident-scenario device this site is built around — just don't let "you" load-bear a claim about the reader's specific history elsewhere in the article (that's the pattern eradicated site-wide 2026-07-28: see `feedback_hook_formula_not_reader_biography` in memory).
+
 ## Site Structure
 
 **NOT organized by learning levels** - SREs/Platform Engineers need tools by urgency and job context, not academic progression.

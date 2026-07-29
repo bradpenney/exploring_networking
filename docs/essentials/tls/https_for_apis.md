@@ -132,7 +132,7 @@ The result is mTLS on every hop with no certificates in your application code an
 A full mesh isn't the only way to get there. For a single service — or anywhere you don't want to run a mesh — a **sidecar auth proxy** can terminate mTLS in front of your app and hand it plain HTTP, the same separation a mesh provides at smaller scale. [forevd](https://github.com/firestoned/forevd) is one such proxy: it terminates mTLS (and can add OIDC and group/user authorization on top), so the application never touches a certificate.
 
 !!! info "Disclosure"
-    I contribute to forevd, mentioned here as one example of the sidecar pattern — not an endorsement.
+    I contribute to forevd and I recommend it — I have no financial stake in it, so the recommendation isn't a paid placement, just a genuine one.
 
 ```bash title="Complete an mTLS handshake by hand" linenums="1"
 # Without a client cert, an mTLS endpoint rejects the handshake:
@@ -226,6 +226,12 @@ curl -sI http://api.example.com/ | grep -i location   # (3)!
 | **Certs live at termination** | TLS errors are fixed at the proxy/LB, not the application |
 
 "Put it behind HTTPS" is the start of securing an API in transit, not the end. The question that actually matters is *where the lock comes off* — and then what guards every hop after it. In 2026 the answer isn't "trust the internal network"; it's **mTLS on every hop**, encrypted and mutually authenticated, so no leg is readable and no caller is anonymous. Know your termination point, hold mTLS as the baseline behind it, and "is this secure in transit?" becomes a question you can answer precisely instead of hopefully.
+
+## What's Next
+
+You know where TLS terminates. **[Reverse Proxies and API Gateways](../../efficiency/api_gateways/reverse_proxies_and_gateways.md)** covers the front door that usually does that terminating — the single address that owns your public endpoint and guards everything behind it.
+
+---
 
 ## Further Reading
 
