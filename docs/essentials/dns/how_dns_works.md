@@ -185,6 +185,12 @@ The registrar and DNS host are often the same company, which hides the distincti
 
 DNS stops being spooky the moment you see it as a tree of delegations with caches at every layer. Records don't propagate; caches expire — and TTLs tell you exactly when. Four questions: *who answers, with what, for how long, controlled by whom*. Every DNS mystery you'll meet, from a stale record at 2am to a brand-new domain that won't resolve, is one of them in disguise.
 
+## What's Next
+
+DNS got you a machine's address. **[Load Balancer Basics](../load_balancers/load_balancer_basics.md)** covers what usually answers at that address first — one IP in front of many servers, and how it decides which one actually gets your request.
+
+---
+
 ## Further Reading
 
 ### Related Networking Articles

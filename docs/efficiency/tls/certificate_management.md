@@ -150,6 +150,12 @@ ACME with a public CA assumes the CA can *see* your domain — but plenty of cer
 
 Expired certificates were an era, and the protocol ended it: a machine proves ownership, a client renews on schedule, and the humans keep the credentials scoped and the tests on staging. How this looks when a *cluster* runs the client — certificates as desired state, filled into Secrets behind your Gateway — is the [Kubernetes side of this story](https://k8s.bradpenney.io/efficiency/networking/cert_manager/).
 
+## What's Next
+
+You understand the protocol every ACME client speaks. **[cert-manager: Certificates as Cluster Resources](https://k8s.bradpenney.io/efficiency/networking/cert_manager/)** covers the Kubernetes-native client — Issuers, Certificate resources, and one annotation that makes a Gateway's certificates issue and renew themselves.
+
+---
+
 ## Further Reading
 
 ### Related Networking Articles

@@ -180,6 +180,12 @@ sequenceDiagram
 
 CORS feels like the browser fighting you, but it's the browser protecting your users — refusing to let arbitrary sites spend their credentials behind their backs. Once you see that the Same-Origin Policy is the default, CORS is the *server's* way to relax it on purpose, and `curl`/Postman simply don't play the game, the red console errors stop being a mystery and become a one-line server header. That's the front-end/back-end border, finally drawn in ink.
 
+## What's Next
+
+That closes the loop from "what is an API" to watching real traffic cross a real front door. What's left is the layer above all of it — *(Mastery — coming soon)* the REST, idempotency, and versioning decisions you can't take back once clients depend on you.
+
+---
+
 ## Further Reading
 
 ### Related Networking Articles

@@ -9,7 +9,7 @@ description: "Every scary TLS error is one verification step failing. Learn the 
 !!! tip "Part of a Learning Path"
     This article is part of the [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
 
-The site works in Chrome. The same URL in your deploy script throws `SSL: CERTIFICATE_VERIFY_FAILED`, and a teammate's `curl` agrees with the script. Same server, same certificate, same everything — except one client trusts it and the others don't. Nothing about that sentence makes sense until you know what actually happens in the first hundred milliseconds of an HTTPS connection.
+The site works in the Chrome browser. The same URL in your deploy script throws `SSL: CERTIFICATE_VERIFY_FAILED`, and a teammate's `curl` agrees with the script. Same server, same certificate, same everything — except one client trusts it and the others don't. Nothing about that sentence makes sense until you know what actually happens in the first hundred milliseconds of an HTTPS connection.
 
 That's this article: the TLS handshake, what a certificate really asserts, and the chain of trust that decides, independently on every client, whether to believe it. Once you can see those three pieces, every TLS error message turns from scary to specific: each one is a single, nameable verification step failing.
 
@@ -74,7 +74,7 @@ flowchart TD
 - Roots don't sign server certificates directly; they're kept offline and sign **intermediates**, which do the day-to-day signing. So your certificate's trust path is leaf → intermediate → root.
 - During the handshake, the client verifies each signature up the chain until it reaches a root **in its own trust store**. Reach one: trusted. Run out of links: rejected.
 
-The operational catch: **the server is responsible for sending the intermediates.** The client only holds roots, so a server that sends just its leaf certificate leaves a gap in the chain. This is exactly the "works in Chrome, fails in `curl`" mystery from the opening — browsers cache intermediates from other sites and can even fetch missing ones, while `curl`, Python, and most libraries verify strictly with what they're given. Same certificate, different verifiers, different verdicts. The fix is always configuration: serve the **full chain** (the `fullchain.pem` that Let's Encrypt tooling generates, never just `cert.pem`).
+The operational catch: **the server is responsible for sending the intermediates.** The client only holds roots, so a server that sends just its leaf certificate leaves a gap in the chain. This is exactly the "works in the Chrome browser, fails in `curl`" mystery from the opening — browsers cache intermediates from other sites and can even fetch missing ones, while `curl`, Python, and most libraries verify strictly with what they're given. Same certificate, different verifiers, different verdicts. The fix is always configuration: serve the **full chain** (the `fullchain.pem` that Let's Encrypt tooling generates, never just `cert.pem`).
 
 !!! warning "Different clients, different trust stores"
     Trust isn't a property of the certificate — it's a property of *each client's trust store*. A minimal container image with no `ca-certificates` package trusts **nothing** and fails every TLS connection; an old base image may be missing newer roots. When one environment rejects a cert that others accept, compare trust stores before blaming the server.
@@ -170,6 +170,12 @@ For a public endpoint, [SSL Labs](https://www.ssllabs.com/ssltest/) runs this an
 | **`-k` / `verify=False`** | Disables the impostor check entirely; a bug in anything bound for production |
 
 The handshake earns encryption; the chain of trust earns *belief*. Every TLS failure you'll meet is one of a half-dozen verification steps saying no — and now each one has a name, a command that reveals it, and a fix that isn't `-k`.
+
+## What's Next
+
+You've watched the handshake happen from outside the cluster. **[Services: Stable Networking for Kubernetes Pods](https://k8s.bradpenney.io/essentials/services/)** picks up on the inside — the stable address your Pods hide behind before any of this traffic ever reaches your code.
+
+---
 
 ## Further Reading
 

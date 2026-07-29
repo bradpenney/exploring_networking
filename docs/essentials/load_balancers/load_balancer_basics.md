@@ -163,6 +163,12 @@ It works, but you pay twice. Load skews: a handful of heavy clients pinned to on
 
 Two decisions, repeated forever — and now you've seen how each one is made, tuned, and broken: probes too shallow or too deep for *who's healthy*, algorithms and stickiness for *who's next*, and the L4/L7 split deciding what the machine can even see. That frame is portable: wherever you meet a load balancer (a cloud console, an HAProxy config, the machinery an orchestrator builds for you), start by asking which kind it is, then interrogate its two decisions.
 
+## What's Next
+
+The load balancer gets you to a healthy server. What happens next — proving that server can be trusted, without the two of you having met before — is a harder problem. **[Public-Key Cryptography](https://cs.bradpenney.io/efficiency/security/public_key_cryptography/)** covers the theory that makes it possible.
+
+---
+
 ## Further Reading
 
 ### Related Networking Articles

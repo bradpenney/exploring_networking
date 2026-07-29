@@ -1,6 +1,6 @@
 # Services and Ingress
 
-You've deployed your pods, they're running, and the logs look great. But when you try to reach them from outside the cluster, you get a "Connection Timed Out" or a 404. **This is where Kubernetes networking abstraction meets the real world.**
+Pods deploy, they're running, the logs look great — and then reaching them from outside the cluster returns a "Connection Timed Out" or a 404. **This is where Kubernetes networking abstraction meets the real world.**
 
 In Kubernetes, pods are ephemeral—they die and are reborn with new IP addresses. To build a reliable system, you need stable entry points. This guide explains how **Services** provide internal stability and **Ingress** provides external access.
 

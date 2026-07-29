@@ -9,7 +9,7 @@ description: "Production APIs sit behind a front door. Learn how reverse proxies
 !!! tip "Part of a Learning Path"
     This article is part of the [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
 
-You've now [exposed an endpoint](../../essentials/http/from_url_to_endpoint.md) and [secured it with HTTPS](../../essentials/tls/https_for_apis.md). But in production, clients almost never connect to your application directly. There's a piece of infrastructure standing in front of it — the thing that actually owns the public address, terminates TLS, and decides which requests even reach your code. When someone says "the endpoint is behind the gateway," *this* is what they mean, and not understanding it leaves a permanent gap in the picture of how an API is exposed and secured.
+Exposing an endpoint and [securing it with HTTPS](../../essentials/tls/https_for_apis.md) — covered in [the previous article](../../essentials/http/from_url_to_endpoint.md) — are the first two pieces. But in production, clients almost never connect to an application directly. There's a piece of infrastructure standing in front of it — the thing that actually owns the public address, terminates TLS, and decides which requests even reach the code behind it. When someone says "the endpoint is behind the gateway," *this* is what they mean, and not understanding it leaves a permanent gap in the picture of how an API is exposed and secured.
 
 This article demystifies that front door: the reverse proxy and its more capable cousin, the API gateway.
 
@@ -145,7 +145,7 @@ But a gateway generally **cannot authorize** your business rules, because it doe
 One useful refinement: *coarse* authorization can live at the edge too. "Is the caller in an allowed group?" is a membership check a proxy can make; it's *business-rule* authorization ("does user 42 own order 88?") that it can't. A sidecar auth proxy like [forevd](https://github.com/firestoned/forevd) sits exactly here — it externalizes authentication (mTLS or OIDC) *and* coarse authorization (LDAP group or user allowlists) out of your application code, leaving the fine-grained, data-dependent checks to the service. It's one of several tools (alongside full gateways and service meshes) in this space.
 
 !!! info "Disclosure"
-    I contribute to forevd. It's mentioned here as one example of the sidecar auth pattern — not an endorsement.
+    I contribute to forevd and I recommend it — I have no financial stake in it, so the recommendation isn't a paid placement, just a genuine one.
 
 Assuming the gateway did *both* is a classic way over-permissive APIs ship. The full reasoning lives in the CS-side [authentication vs authorization](https://cs.bradpenney.io/efficiency/web/authentication_vs_authorization/) article; the networking takeaway is simply: **the front door checks identity; the service checks permission.**
 
@@ -207,6 +207,12 @@ Assuming the gateway did *both* is a classic way over-permissive APIs ship. The 
 | **5xx attribution** | `502` = backend unreachable/bad response; `504` = backend too slow |
 
 The front door is the part of "how an API is exposed and secured" that's invisible from the client and central to the design. Once you see that backends hide on a private network while a single proxy owns the public address — terminating TLS, routing paths, balancing load, and authenticating callers — the production picture finally closes. The endpoint isn't exposed to the world; the *gateway* is, and it decides what gets through.
+
+## What's Next
+
+The gateway routes requests in — **[CORS Explained](../http/cors_explained.md)** covers the browser-side rule that decides whether the *client* is even allowed to ask, the reason an API can work perfectly in `curl` and fail silently in the app.
+
+---
 
 ## Further Reading
 
