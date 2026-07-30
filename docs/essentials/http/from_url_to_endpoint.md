@@ -1,6 +1,6 @@
 ---
 date: "2026-06-21 12:00"
-title: "From URL to Endpoint: How an API Gets Exposed"
+title: "How an API Endpoint Gets Exposed: URL to Server"
 description: "What does 'exposing an endpoint' actually mean? Follow a URL through DNS, ports, and the listening server to see where your API really lives."
 ---
 

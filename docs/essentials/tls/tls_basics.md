@@ -1,6 +1,6 @@
 ---
 date: "2026-07-09 12:00"
-title: "TLS Basics: Certificates, Handshakes, and the Chain of Trust"
+title: "TLS Handshake Explained: Certificates & Trust Chain"
 description: "Every scary TLS error is one verification step failing. Learn the handshake, what a certificate asserts, and how the chain of trust actually gets verified."
 ---
 

@@ -1,6 +1,6 @@
 ---
 date: "2026-07-09 12:00"
-title: "How DNS Actually Works: Resolution, Records, and TTLs"
+title: "DNS Explained: Resolvers, Records & TTLs"
 description: "DNS doesn't 'propagate' — caches expire. Follow one name through resolvers, root servers, and TTLs to understand every record you'll ever change on deploy day."
 ---
 

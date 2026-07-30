@@ -1,6 +1,6 @@
 ---
 date: "2026-07-09 12:00"
-title: "Load Balancer Basics: One Address, Many Healthy Servers"
+title: "Load Balancer Explained: L4 vs L7 & Health Checks"
 description: "Your A record points at one IP, but you run five servers. How load balancers distribute traffic, decide who's healthy, and why L4 vs L7 changes everything."
 ---
 

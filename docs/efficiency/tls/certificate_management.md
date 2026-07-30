@@ -1,6 +1,6 @@
 ---
 date: "2026-07-09 12:00"
-title: "Automating TLS Certificates: ACME and Let's Encrypt"
+title: "ACME Protocol Explained: HTTP-01 vs DNS-01"
 description: "Certificate expiry is a solved problem. How the ACME protocol proves domain ownership — HTTP-01 vs DNS-01 — and the automation tiers that renew forever."
 ---
 

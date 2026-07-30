@@ -1,6 +1,6 @@
 ---
 date: "2026-06-21 12:00"
-title: "CORS Explained: The Front-End/Back-End Border"
+title: "What Is CORS? Cross-Origin Requests Explained"
 description: "CORS is the browser rule that confuses every back-end dev. Learn why the browser blocks cross-origin calls and how the server actually grants permission."
 ---
 

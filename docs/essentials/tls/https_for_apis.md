@@ -1,6 +1,6 @@
 ---
 date: "2026-06-21 12:00"
-title: "HTTPS for APIs: Where the Connection Gets Secured"
+title: "TLS Termination & mTLS Explained for APIs"
 description: "Where does HTTPS encryption actually stop, and what guards the hops after it? Learn TLS termination, how mTLS works, and why it's the 2026 standard."
 ---
 

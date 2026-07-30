@@ -1,6 +1,6 @@
 ---
 date: "2026-06-21 12:00"
-title: "Reverse Proxies and API Gateways, Demystified"
+title: "Reverse Proxy vs API Gateway: What's the Difference"
 description: "Production APIs sit behind a front door. Learn how reverse proxies and API gateways handle TLS, routing, auth, and rate limiting before traffic hits you."
 ---
 

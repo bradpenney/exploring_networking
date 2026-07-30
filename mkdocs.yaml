@@ -143,6 +143,7 @@ nav:
   - Home: index.md
 
   - 📦 Essentials:
+      - Overview: essentials/overview.md
       - HTTP:
           - "From URL to Endpoint: How an API Gets Exposed": essentials/http/from_url_to_endpoint.md
       - TLS:
@@ -157,6 +158,7 @@ nav:
   #         - Network Troubleshooting Basics: essentials/troubleshooting/network_troubleshooting_basics.md
 
   - ⚡ Efficiency:
+      - Overview: efficiency/overview.md
       - HTTP:
           - "CORS Explained: The Front-End/Back-End Border": efficiency/http/cors_explained.md
       - API Gateways:

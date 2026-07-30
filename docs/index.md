@@ -24,29 +24,17 @@ Content is structured by **urgency and depth** — the same three tiers as the r
 
 <div class="grid cards" markdown>
 
--   :material-package-variant: **Essentials**
+-   :material-package-variant: **[Essentials](essentials/overview.md)**
 
     ---
 
-    **The networking you reach for during an incident — and the mental model underneath it.**
+    The networking you reach for during an incident, and the mental model underneath it — how an endpoint gets exposed, TLS, DNS, and load balancers.
 
-    **[From URL to Endpoint](essentials/http/from_url_to_endpoint.md)** — What "expose an endpoint" really means: DNS, ports, and the bind address that decides who can reach it
-
-    **[HTTPS for APIs](essentials/tls/https_for_apis.md)** — Where the connection actually gets secured, and why TLS termination changes everything
-
-    DNS debugging, network troubleshooting, load balancers, TLS basics (coming soon)
-
--   :material-lightning-bolt: **Efficiency**
+-   :material-lightning-bolt: **[Efficiency](efficiency/overview.md)**
 
     ---
 
-    **Design and operate the layer that exposes and secures your services.**
-
-    **[Reverse Proxies and API Gateways](efficiency/api_gateways/reverse_proxies_and_gateways.md)** — The front door that owns the public address, terminates TLS, and guards your services
-
-    **[CORS Explained](efficiency/http/cors_explained.md)** — The browser rule that makes an API "work in curl but fail in the app"
-
-    Certificate management, advanced debugging, Services & Ingress, VPC design (coming soon)
+    Design and operate the layer that exposes and secures your services — CORS, reverse proxies and API gateways, and automated TLS certificates with ACME.
 
 -   :material-target: **Mastery**
 
@@ -73,4 +61,4 @@ This site is one of an integrated set of learning sites:
 
 ## Getting Started
 
-New here? Start with **[From URL to Endpoint](essentials/http/from_url_to_endpoint.md)** — once you can see how an endpoint is actually exposed, everything else about securing and debugging it falls into place.
+New here? Start with **[Essentials](essentials/overview.md)** — once you can see how an endpoint is actually exposed, everything else about securing and debugging it falls into place.
