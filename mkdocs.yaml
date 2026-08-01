@@ -84,6 +84,7 @@ plugins:
         - "efficiency/cloud_networking/**"
   - rss:
       match_path: ".*"
+      pretty_print: true
       image: https://networking.bradpenney.io/images/exploring_networking.png
       abstract_chars_count: 160
       length: 20
