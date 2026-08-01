@@ -50,9 +50,9 @@ Content is structured by **urgency and depth** — the same three tiers as the r
 
 If you're the person who gets paged when an endpoint goes dark — or the one now asked to expose and secure a new one — this is for you. It assumes you're comfortable in a terminal and want to understand *why* the network behaves the way it does, not just which command to copy. No traditional networking background required; it meets you where you are.
 
-## Part of the Exploring Series
+## Part of the BradPenney.io Network
 
-This site is one of an integrated set of learning sites:
+This site is part of a family of progressive technical learning resources:
 
 - **[linux.bradpenney.io](https://linux.bradpenney.io)** — Linux teaches the network commands; this site teaches when and why to use them.
 - **[k8s.bradpenney.io](https://k8s.bradpenney.io)** — Kubernetes teaches Services and Ingress; this site teaches how they actually route traffic.
