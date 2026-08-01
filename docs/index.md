@@ -62,3 +62,9 @@ This site is one of an integrated set of learning sites:
 ## Getting Started
 
 New here? Start with **[Essentials](essentials/overview.md)** — once you can see how an endpoint is actually exposed, everything else about securing and debugging it falls into place.
+
+## Subscribe by RSS
+
+New articles publish straight to the [RSS feed](https://networking.bradpenney.io/feed_rss_created.xml) — no algorithm, no email required.
+
+<a href="https://iheartrss.com/"><img src="https://iheartrss.com/iheartrss-dark.svg" alt="I ♥ RSS" width="88" height="31"></a>
