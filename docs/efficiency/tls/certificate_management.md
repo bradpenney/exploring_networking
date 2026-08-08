@@ -6,8 +6,33 @@ description: "Certificate expiry is a solved problem. How the ACME protocol prov
 
 # Automating TLS Certificates: ACME and Let's Encrypt
 
-!!! tip "Part of a Learning Path"
-    This article is part of the [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a deep dive and a pathway:</span> [TLS](../../essentials/tls/tls_basics.md){: .pathway-pill } [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards two-col" markdown>
+
+    -   :material-lock-check: __TLS__ — step 3 of 3
+
+        ---
+
+        ← [HTTPS for APIs: Where the Connection Gets Secured](../../essentials/tls/https_for_apis.md) · **you are here** · *(last step)* →
+
+        [Start the deep dive →](../../essentials/tls/tls_basics.md)
+
+    -   :material-server-network: __Put Your Kubernetes App on the Internet__ — step 10 of 13
+
+        ---
+
+        ← [Kubernetes Ingress: Reading the Front Door You Inherit](https://k8s.bradpenney.io/essentials/ingress/) · **you are here** · [cert-manager: Certificates as Cluster Resources](https://k8s.bradpenney.io/efficiency/networking/cert_manager/) →
+
+        [Start the pathway →](https://bradpenney.io/pathways/cluster-to-internet)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 "The site is down. `SSL_ERROR_EXPIRED_CERT`." You check the calendar: it's exactly one certificate lifetime since someone last renewed by hand, and that someone left the company six months ago.
 

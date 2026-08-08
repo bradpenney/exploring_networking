@@ -6,8 +6,33 @@ description: "Every scary TLS error is one verification step failing. Learn the 
 
 # TLS Basics: Certificates, Handshakes, and the Chain of Trust
 
-!!! tip "Part of a Learning Path"
-    This article is part of the [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a deep dive and a pathway:</span> [TLS](tls_basics.md){: .pathway-pill } [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards two-col" markdown>
+
+    -   :material-lock-check: __TLS__ — step 1 of 3
+
+        ---
+
+        ← *(first step)* · **you are here** · [HTTPS for APIs: Where the Connection Gets Secured](https_for_apis.md) →
+
+        [Start the deep dive →](tls_basics.md)
+
+    -   :material-server-network: __Put Your Kubernetes App on the Internet__ — step 5 of 13
+
+        ---
+
+        ← [Public-Key Cryptography: The Theory Under TLS](https://cs.bradpenney.io/efficiency/security/public_key_cryptography/) · **you are here** · [Services — Stable Networking for Pods](https://k8s.bradpenney.io/essentials/services/) →
+
+        [Start the pathway →](https://bradpenney.io/pathways/cluster-to-internet)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 The site works in the Chrome browser. The same URL in your deploy script throws `SSL: CERTIFICATE_VERIFY_FAILED`, and a teammate's `curl` agrees with the script. Same server, same certificate, same everything — except one client trusts it and the others don't. Nothing about that sentence makes sense until you know what actually happens in the first hundred milliseconds of an HTTPS connection.
 
@@ -105,6 +130,8 @@ echo | openssl s_client -connect api.example.com:443 2>/dev/null \
   | grep "Verify return code"                            # (2)!
 # Verify return code: 0 (ok)
 ```
+
+![Running openssl s_client against a real domain, showing the full certificate chain and then the trust-store verification result](../../images/terminal/tls_chain_verify.gif)
 
 1. `-showcerts` prints every certificate the server sent; the `s:`/`i:` lines are each one's subject and issuer. Read the chain here: cert 0 (the leaf) is issued by the same name that cert 1 carries as its subject, link by link toward a root. If the list stops before a trust-store root, the server isn't sending its intermediates.
 2. The verdict after `openssl` verifies the chain against the local trust store. `0 (ok)` means trusted; anything else names the failing step — `unable to get local issuer certificate` (broken/missing chain), `certificate has expired`, `self-signed certificate`.

@@ -6,8 +6,33 @@ description: "Where does HTTPS encryption actually stop, and what guards the hop
 
 # HTTPS for APIs: Where the Connection Gets Secured
 
-!!! tip "Part of a Learning Path"
-    This article is part of the [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a deep dive and a pathway:</span> [TLS](tls_basics.md){: .pathway-pill } [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards two-col" markdown>
+
+    -   :material-lock-check: __TLS__ — step 2 of 3
+
+        ---
+
+        ← [TLS Basics: Certificates, Handshakes, and the Chain of Trust](tls_basics.md) · **you are here** · [Automating TLS Certificates: ACME and Let's Encrypt](../../efficiency/tls/certificate_management.md) →
+
+        [Start the deep dive →](tls_basics.md)
+
+    -   :material-web: __How APIs Actually Work__ — step 8 of 11
+
+        ---
+
+        ← [Authentication vs Authorization in APIs](https://cs.bradpenney.io/efficiency/web/authentication_vs_authorization/) · **you are here** · [Reverse Proxies and API Gateways](https://networking.bradpenney.io/efficiency/api_gateways/reverse_proxies_and_gateways/) →
+
+        [Start the pathway →](https://bradpenney.io/pathways/how-apis-work)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 You put `https://` in front of your API and call it secured. And mostly, it is — but "secured" hides a question that matters enormously the moment you're designing the system: **where, physically, does the encryption stop?** Because it almost never stops where people assume, and that gap is the difference between an API that's actually private and one that quietly ships sensitive data in the clear inside your own network.
 
@@ -162,6 +187,8 @@ curl -v https://api.example.com/health            # (2)!
 # Confirm HTTP is redirected to HTTPS (it should be)
 curl -sI http://api.example.com/ | grep -i location   # (3)!
 ```
+
+![Running openssl s_client against a real domain, piped into openssl x509 to show the real certificate's subject, issuer, and validity dates](../../images/terminal/tls_cert_inspect.gif)
 
 1. Shows the subject (who the cert is for), issuer (the CA), and validity dates — often revealing it's the *load balancer's* cert, not the app's, which is your first clue that the edge terminates TLS.
 2. The verbose handshake shows the negotiated TLS version and cipher before any HTTP is sent.

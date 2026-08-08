@@ -6,8 +6,33 @@ description: "What does 'exposing an endpoint' actually mean? Follow a URL throu
 
 # From URL to Endpoint: How an API Gets Exposed
 
-!!! tip "Part of a Learning Path"
-    This article is part of two learning paths on [bradpenney.io](https://bradpenney.io): [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) and [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet). It also stands on its own.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of 2 pathways:</span> [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work){: .pathway-pill } [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards two-col" markdown>
+
+    -   :material-web: __How APIs Actually Work__ — step 3 of 11
+
+        ---
+
+        ← [Client and Server: The Request/Response Lifecycle](https://cs.bradpenney.io/efficiency/web/client_server_request_response/) · **you are here** · [Why HTTP APIs Forget You: Statelessness](https://cs.bradpenney.io/efficiency/web/http_statelessness/) →
+
+        [Start the pathway →](https://bradpenney.io/pathways/how-apis-work)
+
+    -   :material-server-network: __Put Your Kubernetes App on the Internet__ — step 1 of 13
+
+        ---
+
+        ← *(first step)* · **you are here** · [How DNS Actually Works](https://networking.bradpenney.io/essentials/dns/how_dns_works/) →
+
+        [Start the pathway →](https://bradpenney.io/pathways/cluster-to-internet)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 "Expose an endpoint so the billing team can hit it" is a common task, and the word *expose* is doing a lot of quiet work in that sentence: curling endpoints all day doesn't automatically answer it. Expose it where? To whom? What physically has to be true for `https://api.example.com/orders` to reach the code behind it, and what stops the whole internet from reaching it too?
 
@@ -83,6 +108,8 @@ curl -v https://api.example.com/   # (2)!
 
 1. `nc` (netcat) tests raw TCP connectivity to a port without sending any HTTP. If this fails but DNS resolved fine, traffic to the port is blocked or nothing is listening.
 2. `curl -v` shows the full connect → TLS → request sequence, so you can see exactly how far it gets.
+
+![Running nc -zv against a real domain on port 443, confirming the port is open and reachable](../../images/terminal/nc_port_check.gif)
 
 !!! warning "'Listening' and 'reachable' are different"
 

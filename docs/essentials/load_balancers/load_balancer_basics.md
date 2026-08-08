@@ -6,8 +6,25 @@ description: "Your A record points at one IP, but you run five servers. How load
 
 # Load Balancer Basics: One Address, Many Healthy Servers
 
-!!! tip "Part of a Learning Path"
-    This article is part of the [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a pathway:</span> [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards" markdown>
+
+    -   :material-server-network: __Put Your Kubernetes App on the Internet__ — step 3 of 13
+
+        ---
+
+        ← [How DNS Actually Works](https://networking.bradpenney.io/essentials/dns/how_dns_works/) · **you are here** · [Public-Key Cryptography: The Theory Under TLS](https://cs.bradpenney.io/efficiency/security/public_key_cryptography/) →
+
+        [Start the pathway →](https://bradpenney.io/pathways/cluster-to-internet)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 One request in three fails. Refresh — fine. Refresh — fine. Refresh — error page. Your app runs on three servers behind a load balancer, one of them is quietly broken, and the load balancer is still cheerfully sending it every third request. Nothing in *your* logs explains it, because the failing server isn't writing logs at all.
 

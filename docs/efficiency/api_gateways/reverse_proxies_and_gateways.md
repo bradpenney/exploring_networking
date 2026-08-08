@@ -6,8 +6,25 @@ description: "Production APIs sit behind a front door. Learn how reverse proxies
 
 # Reverse Proxies and API Gateways, Demystified
 
-!!! tip "Part of a Learning Path"
-    This article is part of the [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a pathway:</span> [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards" markdown>
+
+    -   :material-web: __How APIs Actually Work__ — step 9 of 11
+
+        ---
+
+        ← [HTTPS for APIs: Where the Connection Gets Secured](https://networking.bradpenney.io/essentials/tls/https_for_apis/) · **you are here** · [CORS Explained: The Front-End/Back-End Border](https://networking.bradpenney.io/efficiency/http/cors_explained/) →
+
+        [Start the pathway →](https://bradpenney.io/pathways/how-apis-work)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 Exposing an endpoint and [securing it with HTTPS](../../essentials/tls/https_for_apis.md) — covered in [the previous article](../../essentials/http/from_url_to_endpoint.md) — are the first two pieces. But in production, clients almost never connect to an application directly. There's a piece of infrastructure standing in front of it — the thing that actually owns the public address, terminates TLS, and decides which requests even reach the code behind it. When someone says "the endpoint is behind the gateway," *this* is what they mean, and not understanding it leaves a permanent gap in the picture of how an API is exposed and secured.
 

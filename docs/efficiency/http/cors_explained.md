@@ -6,8 +6,25 @@ description: "CORS is the browser rule that confuses every back-end dev. Learn w
 
 # CORS Explained: The Front-End/Back-End Border
 
-!!! tip "Part of a Learning Path"
-    This article is part of the [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a pathway:</span> [How APIs Actually Work](https://bradpenney.io/pathways/how-apis-work){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards" markdown>
+
+    -   :material-web: __How APIs Actually Work__ — step 10 of 11
+
+        ---
+
+        ← [Reverse Proxies and API Gateways](https://networking.bradpenney.io/efficiency/api_gateways/reverse_proxies_and_gateways/) · **you are here** · *API Design Principles: REST, Idempotency, Versioning (coming soon)* →
+
+        [Start the pathway →](https://bradpenney.io/pathways/how-apis-work)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 Your API works perfectly. You `curl` it — `200 OK`. You hit it in Postman — `200 OK`. Then the front-end developer wires up their web app, and the browser console fills with red:
 

@@ -34,6 +34,12 @@ The API is returning 502s. Is it the load balancer, DNS, or the app itself? Esse
 
     **[Load Balancer Explained](load_balancers/load_balancer_basics.md)** — how traffic gets distributed across servers, health checks, and why L4 vs L7 changes everything.
 
+-   :material-transit-connection-variant: **[Tunneling](tunneling/ssh_tunnels.md)**
+
+    ---
+
+    **[SSH Tunnels Explained](tunneling/ssh_tunnels.md)** — local/remote port forwarding, dynamic SOCKS proxying, and `ProxyJump`, from the one idea underneath all four.
+
 </div>
 
 More Essentials topics — DNS debugging tools and general network troubleshooting (`ping`, `traceroute`, `curl`) — are still on the way.

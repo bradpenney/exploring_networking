@@ -67,6 +67,7 @@ theme:
     - content.code.highlight
     - content.tooltips
     - content.code.mermaid
+    - navigation.path
 
 plugins:
   - search
@@ -155,6 +156,8 @@ nav:
   #         - DNS Debugging Basics: essentials/dns/dns_debugging_basics.md
       - Load Balancers:
           - "Load Balancer Basics: One Address, Many Healthy Servers": essentials/load_balancers/load_balancer_basics.md
+      - Tunneling:
+          - "SSH Tunnels Explained: Port Forwarding and ProxyJump": essentials/tunneling/ssh_tunnels.md
   #     - Troubleshooting:
   #         - Network Troubleshooting Basics: essentials/troubleshooting/network_troubleshooting_basics.md
 

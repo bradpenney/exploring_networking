@@ -6,8 +6,25 @@ description: "DNS doesn't 'propagate' — caches expire. Follow one name through
 
 # How DNS Actually Works: Resolution, Records, and TTLs
 
-!!! tip "Part of a Learning Path"
-    This article is part of the [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet) pathway on [bradpenney.io](https://bradpenney.io) — a guided sequence through the topic. It also stands on its own.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a pathway:</span> [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards" markdown>
+
+    -   :material-server-network: __Put Your Kubernetes App on the Internet__ — step 2 of 13
+
+        ---
+
+        ← [From URL to Endpoint](https://networking.bradpenney.io/essentials/http/from_url_to_endpoint/) · **you are here** · [Load Balancer Basics](https://networking.bradpenney.io/essentials/load_balancers/load_balancer_basics/) →
+
+        [Start the pathway →](https://bradpenney.io/pathways/cluster-to-internet)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 It's migration day. You've moved the API to new infrastructure, updated the A record to the new IP, and confirmed it with `dig`. An hour later, monitoring shows half your traffic still arriving at the old server. Nothing is broken — this is DNS working exactly as designed, and it will keep "misbehaving" until you understand the machinery underneath.
 
@@ -100,6 +117,8 @@ dig +noall +answer api.example.com   # (2)!
 
 1. The second column of the answer (`287`) is the **remaining** TTL at this resolver; this record was cached 13 seconds ago with a TTL of 300.
 2. Ask again and it's lower (`241`). When it hits 0, the resolver re-queries the authoritative server and picks up your change.
+
+![Running dig twice a few seconds apart against a real domain, showing the TTL genuinely counting down between queries](../../images/terminal/dig_ttl_countdown.gif)
 
 This is why your migration split traffic: resolvers that happened to cache the old A record kept serving it until *their* copy expired. Different resolvers cached it at different times, so the old IP faded out gradually instead of switching cleanly.
 

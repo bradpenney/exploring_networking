@@ -28,7 +28,7 @@ Content is structured by **urgency and depth** — the same three tiers as the r
 
     ---
 
-    The networking you reach for during an incident, and the mental model underneath it — how an endpoint gets exposed, TLS, DNS, and load balancers.
+    The networking you reach for during an incident, and the mental model underneath it — how an endpoint gets exposed, TLS, DNS, load balancers, and SSH tunneling.
 
 -   :material-lightning-bolt: **[Efficiency](efficiency/overview.md)**
 
@@ -43,6 +43,18 @@ Content is structured by **urgency and depth** — the same three tiers as the r
     **Advanced architecture, performance, and scale.**
 
     Service mesh, packet capture and deep troubleshooting, network performance tuning, and multi-region networking (coming soon)
+
+</div>
+
+## Deep Dives
+
+<div class="grid cards" markdown>
+
+-   :material-map-marker-path: **[Deep Dives](https://bradpenney.io/deep-dives#networking)**
+
+    ---
+
+    An ordered article series that stays inside this site, start to finish — TLS: the handshake, mTLS for APIs, and automated certificate management.
 
 </div>
 
