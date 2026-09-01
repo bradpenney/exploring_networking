@@ -1,6 +1,6 @@
 ---
 date: "2026-06-21 12:00"
-title: Exploring Networking - Networking for SREs and Platform Engineers
+title: Networking for SREs and Platform Engineers
 description: "Practical networking for SREs and platform engineers — how APIs get exposed and secured on the wire, plus DNS, load balancers, TLS, and Kubernetes networking."
 ---
 
